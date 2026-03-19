@@ -31,7 +31,8 @@ system-agents/
 │   ├── check-chatroom/        ← 안 읽은 메시지 확인
 │   ├── check-mentions/        ← 멘션 확인
 │   ├── send-message/          ← 메시지 보내기 (type 검증)
-│   └── end-turn/              ← 턴 종료
+│   ├── end-turn/              ← 턴 종료
+│   └── report/                ← 작업 결과 자동 공유
 └── README.md
 ```
 
@@ -127,6 +128,7 @@ python bot/turn-bot.py
 - `/check-mentions` — 나를 멘션한 메시지 확인
 - `/send-message {채팅방}` — 메시지 보내기 (type 검증 포함)
 - `/end-turn` — 턴 종료
+- `/report` — 작업 결과를 관련 채팅방에 자동 공유
 
 ## 설계 원칙
 
