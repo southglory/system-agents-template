@@ -262,6 +262,10 @@ Bob   : Nothing to do.
 4. **Conflict Prevention** — Agents are append-only, only bot writes board.yaml
 5. **Independent Execution** — Each agent works without depending on others
 
+## Support
+
+If you find this project useful, please leave a star! It helps others discover it.
+
 ## License
 
 MIT License. Use freely.
