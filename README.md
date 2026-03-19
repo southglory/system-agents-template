@@ -30,7 +30,8 @@ system-agents/
 ├── skills/
 │   ├── check-chatroom/        ← 안 읽은 메시지 확인
 │   ├── check-mentions/        ← 멘션 확인
-│   └── send-message/          ← 메시지 보내기 (type 검증)
+│   ├── send-message/          ← 메시지 보내기 (type 검증)
+│   └── end-turn/              ← 턴 종료
 └── README.md
 ```
 
@@ -114,6 +115,7 @@ python bot/turn-bot.py
 | `task-update` | 상태/담당자 변경 |
 | `task-done` | 작업 완료 보고 |
 | `task-claim` | 작업 선점 (Phase 2) |
+| `turn-end` | 턴 종료 |
 
 ### 봇
 - board.yaml의 유일한 쓰기 권한자
@@ -124,6 +126,7 @@ python bot/turn-bot.py
 - `/check-chatroom {채팅방}` — 안 읽은 메시지 확인
 - `/check-mentions` — 나를 멘션한 메시지 확인
 - `/send-message {채팅방}` — 메시지 보내기 (type 검증 포함)
+- `/end-turn` — 턴 종료
 
 ## 설계 원칙
 
