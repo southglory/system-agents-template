@@ -14,5 +14,11 @@
 - 메시지 보내기: `/send-message {채팅방이름}`
 - 메시지 확인: `/check-chatroom {채팅방이름}`
 
+## 작업 관리
+- 작업 보드: `../../tasks/board.yaml`
+- 프로토콜 문서: `../../tasks/PROTOCOL.md`
+- 세션 시작 시 `board.yaml`에서 본인 담당 작업 확인
+- 작업 착수/완료 시 `board.yaml`의 status, start, done 업데이트
+
 ## 참고 문서
 - 역할 정의: `role.md`

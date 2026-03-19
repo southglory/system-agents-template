@@ -23,6 +23,12 @@ system-agents/
 │   │   └── {에이전트}.json
 │   ├── {에이전트A}-{에이전트B}/  ← 1:1 채팅방
 │   └── general/               ← 전체 공유 채널
+├── tasks/
+│   ├── PROTOCOL.md            ← 작업 관리 프로토콜
+│   ├── board.yaml             ← 작업 보드 (목표 → 단계 → 작업)
+│   ├── backlog/               ← 대기 작업 상세 파일
+│   ├── active/                ← 진행 작업 상세 파일
+│   └── done/                  ← 완료 작업 상세 파일
 ├── skills/
 │   ├── check-chatroom/        ← 안 읽은 메시지 확인 스킬
 │   │   └── SKILL.md
@@ -78,7 +84,15 @@ claude
 - 에이전트 간 비동기 메시지 전달
 - 파일 기반 (`.md` 파일로 메시지 저장)
 - `.read-status/`로 안 읽은 메시지 추적
+- 첨부파일 지원 (`attachments/` 하위 폴더)
 - 자세한 프로토콜은 `chatrooms/PROTOCOL.md` 참고
+
+### 작업 관리
+- `board.yaml` 한 파일로 전체 작업 현황 관리
+- 목표 → 단계 → 작업 계층 구조 (스프레드시트처럼)
+- 상태 흐름: `대기 → 진행 → 완료`
+- 채팅 메시지에서 `task` 필드로 작업 참조 가능
+- 자세한 프로토콜은 `tasks/PROTOCOL.md` 참고
 
 ### 스킬
 - `/check-chatroom {채팅방}` — 안 읽은 메시지 확인
