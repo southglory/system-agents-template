@@ -130,6 +130,136 @@ python bot/turn-bot.py
 - `/end-turn` — 턴 종료
 - `/report` — 작업 결과를 관련 채팅방에 자동 공유
 
+## 시나리오: 라운드 플레이
+
+Alice(프론트엔드)와 Bob(백엔드) 두 에이전트로 대시보드를 만드는 상황.
+
+### Round 1
+
+**Phase 1 — 봇**
+```bash
+$ python bot/turn-bot.py
+[봇] 처리할 새 메시지 없음.
+```
+> 첫 라운드. 보드는 비어있다.
+
+**Phase 2 — Alice의 턴 (계획)**
+```
+사용자: Phase 2
+Alice : 채팅방 확인... 새 메시지 없음.
+        보드 확인... 작업 없음.
+        새 작업이 필요합니다.
+사용자: 대시보드 만들어야 해. 너는 프론트엔드, Bob은 API.
+Alice : task-create 2건 보내겠습니다.
+        → [general] task-create "대시보드 UI 구현" assignee: alice
+        → [general] task-create "대시보드 API 개발" assignee: bob
+        /end-turn
+```
+
+**Phase 2 — Bob의 턴 (계획)**
+```
+사용자: Phase 2
+Bob   : 채팅방 확인... Alice가 작업 2건 생성함.
+        API 개발이 내 담당이군요. 봇이 ID 부여하면 claim하겠습니다.
+        이번엔 할 게 없습니다.
+        /end-turn
+```
+
+**Phase 3 — 봇**
+```bash
+$ python bot/turn-bot.py
+[봇] 2개 메시지 처리 완료:
+  [task-create] T-001 — 대시보드 UI 구현
+  [task-create] T-002 — 대시보드 API 개발
+```
+> board.yaml에 T-001, T-002 등록됨. 봇이 general에 ID 알림.
+
+**Phase 4 — Alice의 턴 (실행)**
+```
+사용자: Phase 4
+Alice : 채팅방 확인... 봇이 T-001, T-002 등록 알림.
+        보드 확인... T-001(대시보드 UI)이 내 담당, 상태: 대기.
+        T-001 작업을 시작합니다.
+        ... (React 컴포넌트 작성 중) ...
+        UI 기본 구조 완성했습니다.
+사용자: 공유해
+Alice : /report
+        → [general] task-update T-001 status: 진행 "기본 레이아웃 완성"
+        → [alice-bob] message "API 엔드포인트 /api/stats 형태로 부탁해"
+        /end-turn
+```
+
+**Phase 4 — Bob의 턴 (실행)**
+```
+사용자: Phase 4
+Bob   : 채팅방 확인... Alice가 T-001 진행 중, API 형태 요청함.
+        보드 확인... T-002(API 개발)이 내 담당, 상태: 대기.
+        T-002 시작합니다. /api/stats 엔드포인트 포함해서.
+        ... (FastAPI 엔드포인트 작성 중) ...
+        API 완성했습니다.
+        /report
+        → [general] task-done T-002 "API 완성, /api/stats 포함"
+        → [alice-bob] message "API 올렸어. /api/stats로 호출하면 돼"
+        /end-turn
+```
+
+**Phase 5 — 봇**
+```bash
+$ python bot/turn-bot.py
+[봇] 3개 메시지 처리 완료:
+  [task-update] T-001 — 진행
+  [task-done] T-002 — 완료
+```
+
+### Round 2
+
+**Phase 1 — 봇**
+```bash
+$ python bot/turn-bot.py
+[봇] 처리할 새 메시지 없음.
+```
+
+**Phase 2 — Alice의 턴**
+```
+사용자: Phase 2
+Alice : 채팅방 확인... Bob이 API 완성, /api/stats 사용 가능.
+        보드 확인... T-001(UI) 진행 중, T-002(API) 완료.
+        T-001 claim해서 이어서 진행하겠습니다.
+        → [general] task-claim T-001
+        /end-turn
+```
+
+**Phase 2 — Bob의 턴**
+```
+사용자: Phase 2
+Bob   : 채팅방 확인... 할당된 새 작업 없음.
+        이번 라운드는 패스합니다.
+        /end-turn
+```
+
+> Bob은 할 일 없어서 턴만 넘김. 토큰 절약.
+
+**Phase 3 — 봇** → claim 반영
+
+**Phase 4 — Alice의 턴**
+```
+사용자: Phase 4
+Alice : API 연동해서 대시보드 완성합니다.
+        ... (fetch + 차트 렌더링) ...
+        /report
+        → [general] task-done T-001 "API 연동 완료, 대시보드 완성"
+        /end-turn
+```
+
+**Phase 4 — Bob의 턴**
+```
+사용자: Phase 4
+Bob   : 할 일 없습니다.
+        /end-turn
+```
+
+**Phase 5 — 봇** → T-001 완료 반영. 모든 작업 완료!
+
 ## 설계 원칙
 
 1. **역할 분리** — 한 에이전트가 너무 많은 걸 하지 않게
