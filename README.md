@@ -4,9 +4,9 @@
 ![GitHub forks](https://img.shields.io/github/forks/southglory/system-agents-template?style=social)
 ![GitHub license](https://img.shields.io/github/license/southglory/system-agents-template)
 
-Claude Code 기반 멀티 에이전트 운영 프레임워크.
+Claude Code 기반 턴제 멀티 에이전트 운영 프레임워크.
 
-각 에이전트가 독립적인 Claude Code 세션으로 동작하며, 채팅방을 통해 비동기 소통한다.
+각 에이전트가 독립적인 Claude Code 세션으로 동작하며, 채팅방을 통해 소통하고, 봇이 작업 보드를 자동 관리한다.
 
 ## 구조
 
@@ -14,34 +14,51 @@ Claude Code 기반 멀티 에이전트 운영 프레임워크.
 system-agents/
 ├── agents/
 │   ├── _example/              ← 에이전트 템플릿
-│   │   ├── CLAUDE.md          ← Claude Code가 세션 시작 시 읽는 규칙
-│   │   └── role.md            ← 에이전트 역할 정의
-│   └── {에이전트이름}/         ← 실제 에이전트 (복사해서 사용)
+│   │   ├── CLAUDE.md          ← 행동 규칙 (턴제 Phase별)
+│   │   └── role.md            ← 역할 정의
+│   └── {에이전트이름}/         ← 실제 에이전트
 ├── chatrooms/
-│   ├── PROTOCOL.md            ← 채팅 프로토콜 문서
-│   ├── .read-status/          ← 각 에이전트의 읽음 상태
-│   │   └── {에이전트}.json
-│   ├── {에이전트A}-{에이전트B}/  ← 1:1 채팅방
-│   └── general/               ← 전체 공유 채널
+│   ├── PROTOCOL.md            ← 채팅 프로토콜 (메시지 type 포함)
+│   ├── .read-status/          ← 읽음 상태
+│   └── general/               ← 전체 채널
 ├── tasks/
 │   ├── PROTOCOL.md            ← 작업 관리 프로토콜
-│   ├── board.yaml             ← 작업 보드 (목표 → 단계 → 작업)
-│   ├── backlog/               ← 대기 작업 상세 파일
-│   ├── active/                ← 진행 작업 상세 파일
-│   └── done/                  ← 완료 작업 상세 파일
+│   └── board.yaml             ← 작업 보드 (봇만 쓰기)
+├── bot/
+│   ├── turn-bot.py            ← 턴제 봇 스크립트
+│   └── requirements.txt
 ├── skills/
-│   ├── check-chatroom/        ← 안 읽은 메시지 확인 스킬
-│   │   └── SKILL.md
-│   └── send-message/          ← 메시지 보내기 스킬
-│       └── SKILL.md
-└── README.md                  ← 이 문서
+│   ├── check-chatroom/        ← 안 읽은 메시지 확인
+│   ├── check-mentions/        ← 멘션 확인
+│   └── send-message/          ← 메시지 보내기 (type 검증)
+└── README.md
+```
+
+## 턴제 운영
+
+에이전트들은 자유롭게 동시에 실행되지 않는다. **라운드** 단위로 순차 실행된다.
+
+```
+=== 라운드 N ===
+
+[Phase 1: 봇]  board.yaml 업데이트 (이전 라운드 메시지 반영)
+
+[Phase 2: 계획] (에이전트 순차 실행)
+  각 에이전트 → 메시지 읽기 + 작업 선점(task-claim)
+
+[Phase 3: 봇]  board.yaml 업데이트 (선점 반영)
+
+[Phase 4: 실행] (에이전트 순차 실행)
+  각 에이전트 → 실제 작업 수행 + 결과 메시지
+
+[Phase 5: 봇]  board.yaml 업데이트 (결과 반영)
+
+=== 라운드 N+1 ===
 ```
 
 ## 빠른 시작
 
 ### 1. 스킬 설치
-
-`skills/` 폴더의 내용을 `~/.claude/skills/`에 복사한다.
 
 ```bash
 cp -r skills/* ~/.claude/skills/
@@ -53,68 +70,68 @@ cp -r skills/* ~/.claude/skills/
 cp -r agents/_example agents/MyAgent
 ```
 
-`agents/MyAgent/role.md`에 역할을 정의하고, `CLAUDE.md`에 규칙을 작성한다.
+`role.md`에 역할, `CLAUDE.md`에 규칙을 작성한다.
 
-### 3. 채팅방 만들기
-
-```bash
-mkdir -p chatrooms/agent1-agent2
-echo '{}' > chatrooms/.read-status/agent1.json
-echo '{}' > chatrooms/.read-status/agent2.json
-```
-
-### 4. 에이전트 실행
-
-각 에이전트 디렉토리를 Claude Code 워킹 디렉토리로 열면 된다.
+### 3. 라운드 실행
 
 ```bash
-cd agents/MyAgent
-claude
+# Phase 1: 봇
+python bot/turn-bot.py
+
+# Phase 2: 각 에이전트 계획
+cd agents/AgentA && claude    # "Phase 2" 알려주기
+cd agents/AgentB && claude
+
+# Phase 3: 봇
+python bot/turn-bot.py
+
+# Phase 4: 각 에이전트 실행
+cd agents/AgentA && claude    # "Phase 4" 알려주기
+cd agents/AgentB && claude
+
+# Phase 5: 봇
+python bot/turn-bot.py
 ```
 
 ## 핵심 개념
 
 ### 에이전트
-- 각각 독립적인 Claude Code 세션으로 동작
-- `CLAUDE.md`가 에이전트의 행동 규칙을 정의
-- `role.md`가 역할과 책임 범위를 정의
-- 필요에 따라 `knowhow/` 폴더에 지식을 축적
+- 독립적인 Claude Code 세션으로 동작
+- Phase 2에서 계획, Phase 4에서 실행
+- board.yaml은 읽기만, 변경은 채팅 메시지로
 
 ### 채팅방
-- 에이전트 간 비동기 메시지 전달
-- 파일 기반 (`.md` 파일로 메시지 저장)
-- `.read-status/`로 안 읽은 메시지 추적
-- 첨부파일 지원 (`attachments/` 하위 폴더)
-- 자세한 프로토콜은 `chatrooms/PROTOCOL.md` 참고
+- 파일 기반 비동기 메시지 전달
+- 메시지 type으로 일반 대화와 작업 지시를 구분
+- 첨부파일 지원
 
-### 작업 관리
-- `board.yaml` 한 파일로 전체 작업 현황 관리
-- 목표 → 단계 → 작업 계층 구조 (스프레드시트처럼)
-- 상태 흐름: `대기 → 진행 → 완료`
-- 채팅 메시지에서 `task` 필드로 작업 참조 가능
-- 자세한 프로토콜은 `tasks/PROTOCOL.md` 참고
+### 메시지 type
+
+| type | 용도 |
+|------|------|
+| `message` | 일반 대화 |
+| `task-create` | 작업 생성 요청 |
+| `task-update` | 상태/담당자 변경 |
+| `task-done` | 작업 완료 보고 |
+| `task-claim` | 작업 선점 (Phase 2) |
+
+### 봇
+- board.yaml의 유일한 쓰기 권한자
+- 채팅방 메시지(task-*)를 스캔하여 board.yaml 갱신
+- task-create 시 ID(T-001) 부여 후 응답 메시지 전송
 
 ### 스킬
 - `/check-chatroom {채팅방}` — 안 읽은 메시지 확인
-- `/send-message {채팅방}` — 메시지 보내기
-- `~/.claude/skills/`에 설치하면 모든 에이전트에서 사용 가능
+- `/check-mentions` — 나를 멘션한 메시지 확인
+- `/send-message {채팅방}` — 메시지 보내기 (type 검증 포함)
 
-## 에이전트 설계 원칙
+## 설계 원칙
 
 1. **역할 분리** — 한 에이전트가 너무 많은 걸 하지 않게
-2. **비동기 소통** — 채팅방으로 요청/응답, 실시간 소통은 불필요
-3. **지식 축적** — knowhow 폴더에 학습한 내용을 문서로 남기기
-4. **독립 실행** — 각 에이전트는 다른 에이전트 없이도 자기 역할 수행 가능
-
-## 예시: 웹 서비스 팀
-
-```
-agents/
-├── Alice/    — 프론트엔드 개발 (React, UI/UX)
-├── Bob/      — 백엔드 개발 (API, DB)
-├── Charlie/  — DevOps (CI/CD, 배포, 모니터링)
-└── Diana/    — QA (테스트, 버그 리포트)
-```
+2. **턴제 소통** — 라운드 단위로 계획 → 실행 → 보고
+3. **간접 변경** — board.yaml은 채팅 메시지를 통해서만 변경
+4. **충돌 방지** — 에이전트는 append-only, 봇만 board.yaml 쓰기
+5. **독립 실행** — 각 에이전트는 다른 에이전트 없이도 동작
 
 ## 라이선스
 
@@ -129,4 +146,3 @@ MIT License. 자유롭게 사용하세요.
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=southglory/system-agents-template&type=Date" />
  </picture>
 </a>
-
