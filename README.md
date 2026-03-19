@@ -4,265 +4,267 @@
 ![GitHub forks](https://img.shields.io/github/forks/southglory/system-agents-template?style=social)
 ![GitHub license](https://img.shields.io/github/license/southglory/system-agents-template)
 
-Claude Code 기반 턴제 멀티 에이전트 운영 프레임워크.
+[English](README.md) | [한국어](README.ko.md)
 
-각 에이전트가 독립적인 Claude Code 세션으로 동작하며, 채팅방을 통해 소통하고, 봇이 작업 보드를 자동 관리한다.
+A turn-based multi-agent framework built on Claude Code.
 
-## 구조
+Each agent runs as an independent Claude Code session, communicates through chatrooms, and a bot automatically manages the task board.
+
+## Structure
 
 ```
 system-agents/
 ├── agents/
-│   ├── _example/              ← 에이전트 템플릿
-│   │   ├── CLAUDE.md          ← 행동 규칙 (턴제 Phase별)
-│   │   └── role.md            ← 역할 정의
-│   └── {에이전트이름}/         ← 실제 에이전트
+│   ├── _example/              ← Agent template
+│   │   ├── CLAUDE.md          ← Behavior rules (per Phase)
+│   │   └── role.md            ← Role definition
+│   └── {AgentName}/           ← Your agents
 ├── chatrooms/
-│   ├── PROTOCOL.md            ← 채팅 프로토콜 (메시지 type 포함)
-│   ├── .read-status/          ← 읽음 상태
-│   └── general/               ← 전체 채널
+│   ├── PROTOCOL.md            ← Chat protocol (message types)
+│   ├── .read-status/          ← Read status tracking
+│   └── general/               ← Shared channel
 ├── tasks/
-│   ├── PROTOCOL.md            ← 작업 관리 프로토콜
-│   └── board.yaml             ← 작업 보드 (봇만 쓰기)
+│   ├── PROTOCOL.md            ← Task management protocol
+│   └── board.yaml             ← Task board (bot-write-only)
 ├── bot/
-│   ├── turn-bot.py            ← 턴제 봇 스크립트
+│   ├── turn-bot.py            ← Turn bot script
 │   └── requirements.txt
 ├── skills/
-│   ├── check-chatroom/        ← 안 읽은 메시지 확인
-│   ├── check-mentions/        ← 멘션 확인
-│   ├── send-message/          ← 메시지 보내기 (type 검증)
-│   ├── end-turn/              ← 턴 종료
-│   └── report/                ← 작업 결과 자동 공유
+│   ├── check-chatroom/        ← Check unread messages
+│   ├── check-mentions/        ← Check mentions
+│   ├── send-message/          ← Send message (type validation)
+│   ├── end-turn/              ← End turn
+│   └── report/                ← Auto-share work results
 └── README.md
 ```
 
-## 턴제 운영
+## Turn-based Operation
 
-에이전트들은 자유롭게 동시에 실행되지 않는다. **라운드** 단위로 순차 실행된다.
+Agents don't run freely in parallel. They execute sequentially in **rounds**.
 
 ```
-=== 라운드 N ===
+=== Round N ===
 
-[Phase 1: 봇]  board.yaml 업데이트 (이전 라운드 메시지 반영)
+[Phase 1: Bot]  Update board.yaml (reflect previous round messages)
 
-[Phase 2: 계획] (에이전트 순차 실행)
-  각 에이전트 → 메시지 읽기 + 작업 선점(task-claim)
+[Phase 2: Plan] (agents run sequentially)
+  Each agent → read messages + claim tasks (task-claim)
 
-[Phase 3: 봇]  board.yaml 업데이트 (선점 반영)
+[Phase 3: Bot]  Update board.yaml (reflect claims)
 
-[Phase 4: 실행] (에이전트 순차 실행)
-  각 에이전트 → 실제 작업 수행 + 결과 메시지
+[Phase 4: Execute] (agents run sequentially)
+  Each agent → do actual work + send result messages
 
-[Phase 5: 봇]  board.yaml 업데이트 (결과 반영)
+[Phase 5: Bot]  Update board.yaml (reflect results)
 
-=== 라운드 N+1 ===
+=== Round N+1 ===
 ```
 
-## 빠른 시작
+## Quick Start
 
-### 1. 스킬 설치
+### 1. Install Skills
 
 ```bash
 cp -r skills/* ~/.claude/skills/
 ```
 
-### 2. 에이전트 만들기
+### 2. Create Agents
 
 ```bash
 cp -r agents/_example agents/MyAgent
 ```
 
-`role.md`에 역할, `CLAUDE.md`에 규칙을 작성한다.
+Define the role in `role.md` and rules in `CLAUDE.md`.
 
-### 3. 라운드 실행
+### 3. Run a Round
 
 ```bash
-# Phase 1: 봇
+# Phase 1: Bot
 python bot/turn-bot.py
 
-# Phase 2: 각 에이전트 계획 (자동 판단)
+# Phase 2: Each agent plans (auto-detects phase)
 cd agents/AgentA && claude
 cd agents/AgentB && claude
 
-# Phase 3: 봇
+# Phase 3: Bot
 python bot/turn-bot.py
 
-# Phase 4: 각 에이전트 실행 (자동 판단)
+# Phase 4: Each agent executes (auto-detects phase)
 cd agents/AgentA && claude
 cd agents/AgentB && claude
 
-# Phase 5: 봇
+# Phase 5: Bot
 python bot/turn-bot.py
 ```
 
-## 핵심 개념
+## Core Concepts
 
-### 에이전트
-- 독립적인 Claude Code 세션으로 동작
-- Phase 2에서 계획, Phase 4에서 실행
-- board.yaml은 읽기만, 변경은 채팅 메시지로
+### Agents
+- Run as independent Claude Code sessions
+- Plan in Phase 2, execute in Phase 4
+- Read-only access to board.yaml — changes go through chat messages
 
-### 채팅방
-- 파일 기반 비동기 메시지 전달
-- 메시지 type으로 일반 대화와 작업 지시를 구분
-- 첨부파일 지원
+### Chatrooms
+- File-based asynchronous messaging
+- Message types distinguish conversations from task commands
+- Attachment support
 
-### 메시지 type
+### Message Types
 
-| type | 용도 |
-|------|------|
-| `message` | 일반 대화 |
-| `task-create` | 작업 생성 요청 |
-| `task-update` | 상태/담당자 변경 |
-| `task-done` | 작업 완료 보고 |
-| `task-claim` | 작업 선점 (Phase 2) |
-| `turn-end` | 턴 종료 |
+| type | Purpose |
+|------|---------|
+| `message` | General conversation |
+| `task-create` | Request new task |
+| `task-update` | Change status/assignee |
+| `task-done` | Report task completion |
+| `task-claim` | Claim a task (Phase 2) |
+| `turn-end` | End turn |
 
-### 봇
-- board.yaml의 유일한 쓰기 권한자
-- 채팅방 메시지(task-*)를 스캔하여 board.yaml 갱신
-- task-create 시 ID(T-001) 부여 후 응답 메시지 전송
+### Bot
+- Sole write access to board.yaml
+- Scans chatroom messages (task-*) and updates board.yaml
+- Assigns IDs (T-001) on task-create and sends confirmation
 
-### 스킬
-- `/check-chatroom {채팅방}` — 안 읽은 메시지 확인
-- `/check-mentions` — 나를 멘션한 메시지 확인
-- `/send-message {채팅방}` — 메시지 보내기 (type 검증 포함)
-- `/end-turn` — 턴 종료
-- `/report` — 작업 결과를 관련 채팅방에 자동 공유
+### Skills
+- `/check-chatroom {room}` — Check unread messages
+- `/check-mentions` — Check messages mentioning you
+- `/send-message {room}` — Send message (with type validation)
+- `/end-turn` — End your turn
+- `/report` — Auto-share work results to relevant chatrooms
 
-## 시나리오: 라운드 플레이
+## Scenario: Round Play
 
-Alice(프론트엔드)와 Bob(백엔드) 두 에이전트로 대시보드를 만드는 상황.
+Alice (frontend) and Bob (backend) building a dashboard together.
 
 ### Round 1
 
-**Phase 1 — 봇**
+**Phase 1 — Bot**
 ```bash
 $ python bot/turn-bot.py
-[봇] 처리할 새 메시지 없음.
+[bot] No new messages to process.
 ```
-> 첫 라운드. 보드는 비어있다.
+> First round. Board is empty.
 
-**Phase 2 — Alice의 턴 (계획)**
+**Phase 2 — Alice's Turn (Plan)**
 ```
-Alice : 채팅방 확인... 새 메시지 없음.
-        보드 확인... 작업 없음.
-        새 작업이 필요합니다.
-사용자: 대시보드 만들어야 해. 너는 프론트엔드, Bob은 API.
-Alice : task-create 2건 보내겠습니다.
-        → [general] task-create "대시보드 UI 구현" assignee: alice
-        → [general] task-create "대시보드 API 개발" assignee: bob
+Alice : Checking chatroom... No new messages.
+        Checking board... No tasks.
+        We need new tasks.
+User  : We need a dashboard. You handle frontend, Bob handles API.
+Alice : Sending 2 task-create messages.
+        → [general] task-create "Dashboard UI" assignee: alice
+        → [general] task-create "Dashboard API" assignee: bob
         /end-turn
 ```
 
-**Phase 2 — Bob의 턴 (계획)**
+**Phase 2 — Bob's Turn (Plan)**
 ```
-Bob   : 채팅방 확인... Alice가 작업 2건 생성함.
-        API 개발이 내 담당이군요. 봇이 ID 부여하면 claim하겠습니다.
-        이번엔 할 게 없습니다.
+Bob   : Checking chatroom... Alice created 2 tasks.
+        API dev is assigned to me. I'll claim after bot assigns IDs.
+        Nothing to do this phase.
         /end-turn
 ```
 
-**Phase 3 — 봇**
+**Phase 3 — Bot**
 ```bash
 $ python bot/turn-bot.py
-[봇] 2개 메시지 처리 완료:
-  [task-create] T-001 — 대시보드 UI 구현
-  [task-create] T-002 — 대시보드 API 개발
+[bot] Processed 2 messages:
+  [task-create] T-001 — Dashboard UI
+  [task-create] T-002 — Dashboard API
 ```
-> board.yaml에 T-001, T-002 등록됨. 봇이 general에 ID 알림.
+> T-001, T-002 registered in board.yaml. Bot notifies in general.
 
-**Phase 4 — Alice의 턴 (실행)**
+**Phase 4 — Alice's Turn (Execute)**
 ```
-Alice : 채팅방 확인... 봇이 T-001, T-002 등록 알림.
-        보드 확인... T-001(대시보드 UI)이 내 담당, 상태: 대기.
-        T-001 작업을 시작합니다.
-        ... (React 컴포넌트 작성 중) ...
-        UI 기본 구조 완성했습니다.
-사용자: 공유해
+Alice : Checking chatroom... Bot registered T-001, T-002.
+        Checking board... T-001 (Dashboard UI) assigned to me, status: pending.
+        Starting T-001.
+        ... (writing React components) ...
+        Basic UI structure done.
+User  : Share it.
 Alice : /report
-        → [general] task-update T-001 status: 진행 "기본 레이아웃 완성"
-        → [alice-bob] message "API 엔드포인트 /api/stats 형태로 부탁해"
+        → [general] task-update T-001 status: in-progress "Basic layout done"
+        → [alice-bob] message "Please use /api/stats format for the endpoint"
         /end-turn
 ```
 
-**Phase 4 — Bob의 턴 (실행)**
+**Phase 4 — Bob's Turn (Execute)**
 ```
-Bob   : 채팅방 확인... Alice가 T-001 진행 중, API 형태 요청함.
-        보드 확인... T-002(API 개발)이 내 담당, 상태: 대기.
-        T-002 시작합니다. /api/stats 엔드포인트 포함해서.
-        ... (FastAPI 엔드포인트 작성 중) ...
-        API 완성했습니다.
+Bob   : Checking chatroom... Alice working on T-001, requested API format.
+        Checking board... T-002 (Dashboard API) assigned to me, status: pending.
+        Starting T-002 with /api/stats endpoint.
+        ... (writing FastAPI endpoints) ...
+        API complete.
         /report
-        → [general] task-done T-002 "API 완성, /api/stats 포함"
-        → [alice-bob] message "API 올렸어. /api/stats로 호출하면 돼"
+        → [general] task-done T-002 "API complete, includes /api/stats"
+        → [alice-bob] message "API is up. Call /api/stats"
         /end-turn
 ```
 
-**Phase 5 — 봇**
+**Phase 5 — Bot**
 ```bash
 $ python bot/turn-bot.py
-[봇] 3개 메시지 처리 완료:
-  [task-update] T-001 — 진행
-  [task-done] T-002 — 완료
+[bot] Processed 3 messages:
+  [task-update] T-001 — in-progress
+  [task-done] T-002 — done
 ```
 
 ### Round 2
 
-**Phase 1 — 봇**
+**Phase 1 — Bot**
 ```bash
 $ python bot/turn-bot.py
-[봇] 처리할 새 메시지 없음.
+[bot] No new messages to process.
 ```
 
-**Phase 2 — Alice의 턴**
+**Phase 2 — Alice's Turn**
 ```
-Alice : 채팅방 확인... Bob이 API 완성, /api/stats 사용 가능.
-        보드 확인... T-001(UI) 진행 중, T-002(API) 완료.
-        T-001 claim해서 이어서 진행하겠습니다.
+Alice : Checking chatroom... Bob finished API, /api/stats available.
+        Checking board... T-001 (UI) in-progress, T-002 (API) done.
+        Claiming T-001 to continue.
         → [general] task-claim T-001
         /end-turn
 ```
 
-**Phase 2 — Bob의 턴**
+**Phase 2 — Bob's Turn**
 ```
-Bob   : 채팅방 확인... 할당된 새 작업 없음.
-        이번 라운드는 패스합니다.
+Bob   : Checking chatroom... No new tasks assigned.
+        Nothing to do this round.
         /end-turn
 ```
 
-> Bob은 할 일 없어서 턴만 넘김. 토큰 절약.
+> Bob has nothing to do — just ends turn. Saves tokens.
 
-**Phase 3 — 봇** → claim 반영
+**Phase 3 — Bot** → Reflects claim.
 
-**Phase 4 — Alice의 턴**
+**Phase 4 — Alice's Turn**
 ```
-Alice : API 연동해서 대시보드 완성합니다.
-        ... (fetch + 차트 렌더링) ...
+Alice : Integrating API to finish the dashboard.
+        ... (fetch + chart rendering) ...
         /report
-        → [general] task-done T-001 "API 연동 완료, 대시보드 완성"
+        → [general] task-done T-001 "API integration complete, dashboard done"
         /end-turn
 ```
 
-**Phase 4 — Bob의 턴**
+**Phase 4 — Bob's Turn**
 ```
-Bob   : 할 일 없습니다.
+Bob   : Nothing to do.
         /end-turn
 ```
 
-**Phase 5 — 봇** → T-001 완료 반영. 모든 작업 완료!
+**Phase 5 — Bot** → T-001 marked done. All tasks complete!
 
-## 설계 원칙
+## Design Principles
 
-1. **역할 분리** — 한 에이전트가 너무 많은 걸 하지 않게
-2. **턴제 소통** — 라운드 단위로 계획 → 실행 → 보고
-3. **간접 변경** — board.yaml은 채팅 메시지를 통해서만 변경
-4. **충돌 방지** — 에이전트는 append-only, 봇만 board.yaml 쓰기
-5. **독립 실행** — 각 에이전트는 다른 에이전트 없이도 동작
+1. **Role Separation** — Each agent has a focused responsibility
+2. **Turn-based Communication** — Plan → Execute → Report per round
+3. **Indirect Mutation** — board.yaml changes only through chat messages
+4. **Conflict Prevention** — Agents are append-only, only bot writes board.yaml
+5. **Independent Execution** — Each agent works without depending on others
 
-## 라이선스
+## License
 
-MIT License. 자유롭게 사용하세요.
+MIT License. Use freely.
 
 ## Star History
 
