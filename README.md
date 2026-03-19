@@ -80,15 +80,15 @@ cp -r agents/_example agents/MyAgent
 # Phase 1: 봇
 python bot/turn-bot.py
 
-# Phase 2: 각 에이전트 계획
-cd agents/AgentA && claude    # "Phase 2" 알려주기
+# Phase 2: 각 에이전트 계획 (자동 판단)
+cd agents/AgentA && claude
 cd agents/AgentB && claude
 
 # Phase 3: 봇
 python bot/turn-bot.py
 
-# Phase 4: 각 에이전트 실행
-cd agents/AgentA && claude    # "Phase 4" 알려주기
+# Phase 4: 각 에이전트 실행 (자동 판단)
+cd agents/AgentA && claude
 cd agents/AgentB && claude
 
 # Phase 5: 봇
@@ -145,7 +145,6 @@ $ python bot/turn-bot.py
 
 **Phase 2 — Alice의 턴 (계획)**
 ```
-사용자: Phase 2
 Alice : 채팅방 확인... 새 메시지 없음.
         보드 확인... 작업 없음.
         새 작업이 필요합니다.
@@ -158,7 +157,6 @@ Alice : task-create 2건 보내겠습니다.
 
 **Phase 2 — Bob의 턴 (계획)**
 ```
-사용자: Phase 2
 Bob   : 채팅방 확인... Alice가 작업 2건 생성함.
         API 개발이 내 담당이군요. 봇이 ID 부여하면 claim하겠습니다.
         이번엔 할 게 없습니다.
@@ -176,7 +174,6 @@ $ python bot/turn-bot.py
 
 **Phase 4 — Alice의 턴 (실행)**
 ```
-사용자: Phase 4
 Alice : 채팅방 확인... 봇이 T-001, T-002 등록 알림.
         보드 확인... T-001(대시보드 UI)이 내 담당, 상태: 대기.
         T-001 작업을 시작합니다.
@@ -191,7 +188,6 @@ Alice : /report
 
 **Phase 4 — Bob의 턴 (실행)**
 ```
-사용자: Phase 4
 Bob   : 채팅방 확인... Alice가 T-001 진행 중, API 형태 요청함.
         보드 확인... T-002(API 개발)이 내 담당, 상태: 대기.
         T-002 시작합니다. /api/stats 엔드포인트 포함해서.
@@ -221,7 +217,6 @@ $ python bot/turn-bot.py
 
 **Phase 2 — Alice의 턴**
 ```
-사용자: Phase 2
 Alice : 채팅방 확인... Bob이 API 완성, /api/stats 사용 가능.
         보드 확인... T-001(UI) 진행 중, T-002(API) 완료.
         T-001 claim해서 이어서 진행하겠습니다.
@@ -231,7 +226,6 @@ Alice : 채팅방 확인... Bob이 API 완성, /api/stats 사용 가능.
 
 **Phase 2 — Bob의 턴**
 ```
-사용자: Phase 2
 Bob   : 채팅방 확인... 할당된 새 작업 없음.
         이번 라운드는 패스합니다.
         /end-turn
@@ -243,7 +237,6 @@ Bob   : 채팅방 확인... 할당된 새 작업 없음.
 
 **Phase 4 — Alice의 턴**
 ```
-사용자: Phase 4
 Alice : API 연동해서 대시보드 완성합니다.
         ... (fetch + 차트 렌더링) ...
         /report
@@ -253,7 +246,6 @@ Alice : API 연동해서 대시보드 완성합니다.
 
 **Phase 4 — Bob의 턴**
 ```
-사용자: Phase 4
 Bob   : 할 일 없습니다.
         /end-turn
 ```
