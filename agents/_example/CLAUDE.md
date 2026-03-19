@@ -16,6 +16,7 @@
 4. **작업 선점**: 수행할 작업이 있으면 `/send-message general`로 `task-claim` 메시지 전송
 5. **작업 요청**: 새 작업이 필요하면 `/send-message general`로 `task-create` 메시지 전송
 6. **실제 작업은 하지 않는다** — 코드 작성, 파일 수정 등은 Phase 4에서
+7. **턴 종료**: `/end-turn`으로 턴을 종료한다
 
 ### Phase 4 (실행) — 실제 작업 수행
 
@@ -27,6 +28,7 @@
    - 진행 중: `task-update`
    - 일반 공유: `message`
 5. **사용자 보고**: 수행 결과를 사용자에게 보고
+6. **턴 종료**: `/end-turn`으로 턴을 종료한다
 
 ### Phase 알 수 없을 때
 

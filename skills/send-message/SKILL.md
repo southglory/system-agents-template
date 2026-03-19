@@ -32,6 +32,7 @@ argument-hint: [채팅방이름 예: alice-bob]
    | `task-update` | from, to, time, type, subject, ref |
    | `task-done` | from, to, time, type, subject, ref |
    | `task-claim` | from, to, time, type, subject, ref |
+   | `turn-end` | from, to, time, type, subject |
 
    - 필수 필드가 빠져 있으면 사용자에게 물어본다
    - **유효하지 않은 type이면 메시지를 보내지 않고 사용자에게 알린다**
