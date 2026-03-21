@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-턴제 봇 — 채팅방 메시지를 스캔하여 board.yaml을 자동 관리한다.
+턴제 봇 - 채팅방 메시지를 스캔하여 board.yaml을 자동 관리한다.
 
 사용법:
     python bot/turn-bot.py              # 한 번 실행 (Phase 1/3/5)
@@ -182,7 +182,7 @@ def process_create(board, msg):
         f"- 마감: {task['due']}",
         ref=task_id,
     )
-    return f"[task-create] {task_id} — {task['title']}"
+    return f"[task-create] {task_id} - {task['title']}"
 
 
 def process_claim(board, msg):
@@ -192,18 +192,18 @@ def process_claim(board, msg):
 
     if not task:
         send_bot_message(msg["room"], f"선점 실패: {ref}", f"@{meta['from']} 작업 {ref}을(를) 찾을 수 없습니다.", ref=ref)
-        return f"[task-claim] {ref} — 실패: 없는 작업"
+        return f"[task-claim] {ref} - 실패: 없는 작업"
 
     if task["status"] == "진행" and task["assignee"] != meta.get("from"):
         send_bot_message(msg["room"], f"선점 실패: {ref}", f"@{meta['from']} {ref}은(는) 이미 {task['assignee']}이(가) 진행 중입니다.", ref=ref)
-        return f"[task-claim] {ref} — 실패: 이미 진행 중"
+        return f"[task-claim] {ref} - 실패: 이미 진행 중"
 
     task["assignee"] = meta.get("from")
     task["status"] = "진행"
     task["start"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
     send_bot_message(msg["room"], f"선점 완료: {ref}", f"@{meta['from']} {ref} 작업이 배정되었습니다.", ref=ref)
-    return f"[task-claim] {ref} → {task['assignee']}"
+    return f"[task-claim] {ref} -> {task['assignee']}"
 
 
 def process_update(board, msg):
@@ -213,7 +213,7 @@ def process_update(board, msg):
 
     if not task:
         send_bot_message(msg["room"], f"업데이트 실패: {ref}", f"@{meta['from']} 작업 {ref}을(를) 찾을 수 없습니다.", ref=ref)
-        return f"[task-update] {ref} — 실패: 없는 작업"
+        return f"[task-update] {ref} - 실패: 없는 작업"
 
     if "status" in meta:
         task["status"] = meta["status"]
@@ -223,7 +223,7 @@ def process_update(board, msg):
         task["start"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
     send_bot_message(msg["room"], f"업데이트 완료: {ref}", f"@{meta['from']} {ref} 작업이 업데이트되었습니다.", ref=ref)
-    return f"[task-update] {ref} — {task['status']}"
+    return f"[task-update] {ref} - {task['status']}"
 
 
 def process_done(board, msg):
@@ -233,13 +233,13 @@ def process_done(board, msg):
 
     if not task:
         send_bot_message(msg["room"], f"완료 처리 실패: {ref}", f"@{meta['from']} 작업 {ref}을(를) 찾을 수 없습니다.", ref=ref)
-        return f"[task-done] {ref} — 실패: 없는 작업"
+        return f"[task-done] {ref} - 실패: 없는 작업"
 
     task["status"] = "완료"
     task["done"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
     send_bot_message(msg["room"], f"완료 처리: {ref}", f"@{meta['from']} {ref} 작업이 완료 처리되었습니다.", ref=ref)
-    return f"[task-done] {ref} — 완료"
+    return f"[task-done] {ref} - 완료"
 
 
 PROCESSORS = {
