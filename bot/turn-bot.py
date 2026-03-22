@@ -215,10 +215,10 @@ def process_update(board, msg):
         send_bot_message(msg["room"], f"업데이트 실패: {ref}", f"@{meta['from']} 작업 {ref}을(를) 찾을 수 없습니다.", ref=ref)
         return f"[task-update] {ref} - 실패: 없는 작업"
 
-    if "status" in meta:
-        task["status"] = meta["status"]
-    if "assignee" in meta:
-        task["assignee"] = meta["assignee"]
+    updatable_fields = ("status", "assignee", "priority", "due", "notes")
+    for field in updatable_fields:
+        if field in meta:
+            task[field] = meta[field]
     if meta.get("status") == "진행" and not task.get("start"):
         task["start"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
