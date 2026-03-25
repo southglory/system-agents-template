@@ -15,10 +15,14 @@ Claude Code上に構築されたターンベースのマルチエージェント
 ```
 system-agents/
 ├── agents/
-│   ├── _example/              ← エージェントテンプレート
+│   ├── _example/              ← エージェントテンプレート（Claude Code）
 │   │   ├── CLAUDE.md          ← 動作ルール（フェーズごと）
 │   │   └── role.md            ← 役割定義
+│   ├── antigravity/           ← Antigravity エージェントテンプレート
+│   │   └── role.md
 │   └── {AgentName}/           ← あなたのエージェント
+├── .agents/
+│   └── workflows/             ← Antigravity ターボワークフロー
 ├── chatrooms/
 │   ├── PROTOCOL.md            ← チャットプロトコル（メッセージタイプ）
 │   ├── .read-status/          ← 既読ステータス追跡
@@ -59,6 +63,19 @@ system-agents/
 
 === ラウンド N+1 ===
 ```
+
+## マルチエージェント互換性
+
+このテンプレートは、**Claude Code** と **Antigravity**（Google）エージェントの連携をサポートしています。
+
+| | Claude Code | Antigravity |
+|---|---|---|
+| **設定** | `agents/{name}/CLAUDE.md` | `agents/antigravity/role.md` |
+| **実行** | ターン制（Phase 2/4） | `.agents/workflows/` ターボ |
+| **コミュニケーション** | `chatrooms/` メッセージ | `chatrooms/` メッセージ |
+| **タスク追跡** | `board.yaml`（読み取り専用） | `board.yaml`（読み取り専用） |
+
+両エージェントは同じ `board.yaml` と `chatrooms/` を共有し、競合のない協業のために同じターン制プロトコルに従います。
 
 ## クイックスタート
 

@@ -15,10 +15,14 @@
 ```
 system-agents/
 ├── agents/
-│   ├── _example/              ← 智能体模板
+│   ├── _example/              ← 智能体模板（Claude Code）
 │   │   ├── CLAUDE.md          ← 行为规则（按阶段）
 │   │   └── role.md            ← 角色定义
+│   ├── antigravity/           ← Antigravity 智能体模板
+│   │   └── role.md
 │   └── {AgentName}/           ← 你的智能体
+├── .agents/
+│   └── workflows/             ← Antigravity 涡轮工作流
 ├── chatrooms/
 │   ├── PROTOCOL.md            ← 聊天协议（消息类型）
 │   ├── .read-status/          ← 已读状态追踪
@@ -59,6 +63,19 @@ system-agents/
 
 === Round N+1 ===
 ```
+
+## 多智能体兼容性
+
+此模板支持 **Claude Code** 和 **Antigravity**（Google）智能体协同工作。
+
+| | Claude Code | Antigravity |
+|---|---|---|
+| **配置** | `agents/{name}/CLAUDE.md` | `agents/antigravity/role.md` |
+| **执行** | 回合制（Phase 2/4） | `.agents/workflows/` 涡轮 |
+| **通信** | `chatrooms/` 消息 | `chatrooms/` 消息 |
+| **任务追踪** | `board.yaml`（只读） | `board.yaml`（只读） |
+
+两个智能体共享相同的 `board.yaml` 和 `chatrooms/`——它们遵循相同的回合制协议，实现无冲突协作。
 
 ## 快速开始
 

@@ -15,10 +15,14 @@ Claude Code 기반 턴제 멀티 에이전트 운영 프레임워크.
 ```
 system-agents/
 ├── agents/
-│   ├── _example/              ← 에이전트 템플릿
+│   ├── _example/              ← 에이전트 템플릿 (Claude Code)
 │   │   ├── CLAUDE.md          ← 행동 규칙 (턴제 Phase별)
 │   │   └── role.md            ← 역할 정의
+│   ├── antigravity/           ← Antigravity 에이전트 템플릿
+│   │   └── role.md
 │   └── {에이전트이름}/         ← 실제 에이전트
+├── .agents/
+│   └── workflows/             ← Antigravity 터보 워크플로우
 ├── chatrooms/
 │   ├── PROTOCOL.md            ← 채팅 프로토콜 (메시지 type 포함)
 │   ├── .read-status/          ← 읽음 상태
@@ -59,6 +63,19 @@ system-agents/
 
 === 라운드 N+1 ===
 ```
+
+## 멀티 에이전트 호환성
+
+이 템플릿은 **Claude Code**와 **Antigravity**(Google) 에이전트가 함께 동작하는 것을 지원합니다.
+
+| | Claude Code | Antigravity |
+|---|---|---|
+| **설정** | `agents/{name}/CLAUDE.md` | `agents/antigravity/role.md` |
+| **실행** | 턴제 (Phase 2/4) | `.agents/workflows/` 터보 |
+| **소통** | `chatrooms/` 메시지 | `chatrooms/` 메시지 |
+| **작업 추적** | `board.yaml` (읽기 전용) | `board.yaml` (읽기 전용) |
+
+두 에이전트는 동일한 `board.yaml`과 `chatrooms/`를 공유하며, 충돌 없는 협업을 위해 동일한 턴제 프로토콜을 따릅니다.
 
 ## 빠른 시작
 

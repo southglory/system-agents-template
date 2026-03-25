@@ -15,10 +15,14 @@ Chaque agent s'exécute en tant que session Claude Code indépendante, communiqu
 ```
 system-agents/
 ├── agents/
-│   ├── _example/              ← Modèle d'agent
+│   ├── _example/              ← Modèle d'agent (Claude Code)
 │   │   ├── CLAUDE.md          ← Règles de comportement (par Phase)
 │   │   └── role.md            ← Définition du rôle
+│   ├── antigravity/           ← Modèle d'agent Antigravity
+│   │   └── role.md
 │   └── {AgentName}/           ← Vos agents
+├── .agents/
+│   └── workflows/             ← Workflows turbo Antigravity
 ├── chatrooms/
 │   ├── PROTOCOL.md            ← Protocole de discussion (types de messages)
 │   ├── .read-status/          ← Suivi du statut de lecture
@@ -59,6 +63,19 @@ Les agents ne s'exécutent pas librement en parallèle. Ils s'exécutent séquen
 
 === Round N+1 ===
 ```
+
+## Compatibilité multi-agent
+
+Ce modèle prend en charge la collaboration entre les agents **Claude Code** et **Antigravity** (Google).
+
+| | Claude Code | Antigravity |
+|---|---|---|
+| **Configuration** | `agents/{name}/CLAUDE.md` | `agents/antigravity/role.md` |
+| **Exécution** | Par tours (Phase 2/4) | `.agents/workflows/` turbo |
+| **Communication** | Messages `chatrooms/` | Messages `chatrooms/` |
+| **Suivi des tâches** | `board.yaml` (lecture seule) | `board.yaml` (lecture seule) |
+
+Les deux agents partagent le même `board.yaml` et `chatrooms/` -- ils suivent le même protocole par tours pour une collaboration sans conflit.
 
 ## Démarrage rapide
 

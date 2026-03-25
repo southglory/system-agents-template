@@ -15,10 +15,14 @@ Each agent runs as an independent Claude Code session, communicates through chat
 ```
 system-agents/
 ├── agents/
-│   ├── _example/              ← Agent template
+│   ├── _example/              ← Agent template (Claude Code)
 │   │   ├── CLAUDE.md          ← Behavior rules (per Phase)
 │   │   └── role.md            ← Role definition
+│   ├── antigravity/           ← Antigravity agent template
+│   │   └── role.md
 │   └── {AgentName}/           ← Your agents
+├── .agents/
+│   └── workflows/             ← Antigravity turbo workflows
 ├── chatrooms/
 │   ├── PROTOCOL.md            ← Chat protocol (message types)
 │   ├── .read-status/          ← Read status tracking
@@ -60,41 +64,76 @@ Agents don't run freely in parallel. They execute sequentially in **rounds**.
 === Round N+1 ===
 ```
 
+## Multi-Agent Compatibility
+
+This template supports both **Claude Code** and **Antigravity** (Google) agents working together.
+
+| | Claude Code | Antigravity |
+|---|---|---|
+| **Config** | `agents/{name}/CLAUDE.md` | `agents/antigravity/role.md` |
+| **Execution** | Turn-based (Phase 2/4) | `.agents/workflows/` turbo |
+| **Communication** | `chatrooms/` messages | `chatrooms/` messages |
+| **Task tracking** | `board.yaml` (read-only) | `board.yaml` (read-only) |
+
+Both agents share the same `board.yaml` and `chatrooms/` — they follow the same turn-based protocol for conflict-free collaboration.
+
 ## Quick Start
 
-### 1. Install Skills
+### 1. Setup in your project
+
+Copy the entire template into a single folder in your project root:
 
 ```bash
-cp -r skills/* ~/.claude/skills/
+# Clone or copy the template into your project
+cp -r system-agents-template/ your-project/system-agents/
 ```
 
-### 2. Create Agents
+Your project should look like:
+```
+your-project/
+├── system-agents/         ← All agent infrastructure in one folder
+│   ├── agents/
+│   ├── chatrooms/
+│   ├── tasks/
+│   ├── bot/
+│   └── skills/
+├── src/                   ← Your project code
+└── README.md
+```
+
+### 2. Install Skills
 
 ```bash
-cp -r agents/_example agents/MyAgent
+cp -r system-agents/skills/* ~/.claude/skills/
+```
+
+### 3. Create Agents
+
+```bash
+cp -r system-agents/agents/_example system-agents/agents/MyAgent
 ```
 
 Define the role in `role.md` and rules in `CLAUDE.md`.
 
-### 3. Run a Round
+### 4. Run a Round
 
 ```bash
 # Phase 1: Bot
-python bot/turn-bot.py
+python system-agents/bot/turn-bot.py
 
 # Phase 2: Each agent plans (auto-detects phase)
-cd agents/AgentA && claude
-cd agents/AgentB && claude
+cd system-agents/agents/AgentA && claude
+cd system-agents/agents/AgentB && claude
 
 # Phase 3: Bot
-python bot/turn-bot.py
+python system-agents/bot/turn-bot.py
 
 # Phase 4: Each agent executes (auto-detects phase)
-cd agents/AgentA && claude
-cd agents/AgentB && claude
+cd system-agents/agents/AgentA && claude
+cd system-agents/agents/AgentB && claude
 
 # Phase 5: Bot
-python bot/turn-bot.py
+python system-agents/bot/turn-bot.py
 ```
 
 ## Core Concepts
