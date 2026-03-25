@@ -60,6 +60,14 @@ system-agents/
 === Round N+1 ===
 ```
 
+## 多智能体兼容性 (Claude & Antigravity)
+
+此模板旨在同时支持 **Claude Code** 和 **Antigravity** (Google) 智能体。
+
+- **Claude Code**: 主要使用 `.system-agents/` 进行基于回合的状态管理，并使用 `/skills/` 执行 CLI 命令。
+- **Antigravity**: 利用 `.agents/workflows/` 进行 **Turbo 自动化** 任务执行。
+- **协作**: 两个智能体共享 `board.yaml` (任务) 和 `chatrooms/` (历史)。Antigravity 在开始工作前可以检查 `board.yaml` 以遵循回合制协议。
+
 ## 快速开始
 
 ### 1. 安装技能

@@ -60,6 +60,14 @@ Los agentes no se ejecutan libremente en paralelo. Se ejecutan secuencialmente e
 === Ronda N+1 ===
 ```
 
+## Compatibilidad multi-agente (Claude y Antigravity)
+
+Esta plantilla está diseñada para admitir simultáneamente los agentes **Claude Code** y **Antigravity** (Google).
+
+- **Claude Code**: utiliza principalmente `.system-agents/` para la gestión de estados por turnos y `/skills/` para comandos CLI.
+- **Antigravity**: utiliza `.agents/workflows/` para la ejecución de tareas **automatizadas por Turbo**.
+- **Colaboración**: ambos agentes comparten `board.yaml` (tareas) y `chatrooms/` (historial). Antigravity puede seguir el protocolo por turnos al verificar el `board.yaml` antes de comenzar a trabajar.
+
 ## Inicio rápido
 
 ### 1. Instalar Skills

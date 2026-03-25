@@ -60,6 +60,14 @@ Agents don't run freely in parallel. They execute sequentially in **rounds**.
 === Round N+1 ===
 ```
 
+## Multi-Agent Compatibility (Claude & Antigravity)
+
+This template is designed to support both **Claude Code** and **Antigravity** (Google) agents simultaneously.
+
+- **Claude Code**: Primarily uses `.system-agents/` for turn-based state management and `/skills/` for CLI commands.
+- **Antigravity**: Utilizes `.agents/workflows/` for **Turbo-automated** task execution.
+- **Collaboration**: Both agents share `board.yaml` (Tasks) and `chatrooms/` (History). Antigravity can follow the turn-based protocol by checking the `board.yaml` before starting work.
+
 ## Quick Start
 
 ### 1. Install Skills

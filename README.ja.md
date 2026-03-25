@@ -60,6 +60,14 @@ system-agents/
 === ラウンド N+1 ===
 ```
 
+## マルチエージェント互換性 (Claude & Antigravity)
+
+このテンプレートは、**Claude Code** と **Antigravity** (Google) エージェントの両方を同時にサポートするように設計されています。
+
+- **Claude Code**: 主に `.system-agents/` を使用したターン制の状態管理と、`/skills/` による CLI コマンドの実行を担当します。
+- **Antigravity**: `.agents/workflows/` を活用した **Turbo 自動化** によるタスク実行を行います。
+- **コラボレーション**: 両方のエージェントは `board.yaml` (タスク) と `chatrooms/` (履歴) を共有します。Antigravity は作業を開始する前に `board.yaml` を確認し、ターン制プロトコルに従うことができます。
+
 ## クイックスタート
 
 ### 1. スキルのインストール

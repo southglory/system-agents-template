@@ -60,6 +60,14 @@ Les agents ne s'exécutent pas librement en parallèle. Ils s'exécutent séquen
 === Round N+1 ===
 ```
 
+## Compatibilité multi-agent (Claude & Antigravity)
+
+Ce modèle est conçu pour prendre en charge simultanément les agents **Claude Code** et **Antigravity** (Google).
+
+- **Claude Code** : utilise principalement `.system-agents/` pour la gestion d'état au tour par tour et `/skills/` pour les commandes CLI.
+- **Antigravity** : utilise `.agents/workflows/` pour l'exécution de tâches **automatisées par Turbo**.
+- **Collaboration** : les deux agents partagent `board.yaml` (tâches) et `chatrooms/` (historique). Antigravity peut suivre le protocole au tour par tour en vérifiant le `board.yaml` avant de commencer le travail.
+
 ## Démarrage rapide
 
 ### 1. Installer les compétences

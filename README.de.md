@@ -60,6 +60,14 @@ Agenten laufen nicht frei parallel. Sie werden sequenziell in **Runden** ausgef�
 === Runde N+1 ===
 ```
 
+## Multi-Agenten-Kompatibilit채t (Claude & Antigravity)
+
+Diese Vorlage ist so konzipiert, dass sie sowohl **Claude Code**- als auch **Antigravity**-Agenten (Google) gleichzeitig unterst체tzt.
+
+- **Claude Code**: Verwendet prim채r `.system-agents/` f체r das rundenbasierte Zustandsmanagement und `/skills/` f체r CLI-Befehle.
+- **Antigravity**: Nutzt `.agents/workflows/` f체r die **Turbo-automatisierte** Aufgabenausf체hrung.
+- **Zusammenarbeit**: Beide Agenten teilen sich `board.yaml` (Aufgaben) und `chatrooms/` (Verlauf). Antigravity kann das rundenbasierte Protokoll einhalten, indem es vor Arbeitsbeginn die `board.yaml` pr체ft.
+
 ## Schnellstart
 
 ### 1. Skills installieren

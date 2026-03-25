@@ -60,6 +60,14 @@ system-agents/
 === 라운드 N+1 ===
 ```
 
+## 멀티 에이전트 호환성 (Claude & Antigravity)
+
+이 템플릿은 **Claude Code**와 **Antigravity**(Google) 에이전트가 동시에 협업할 수 있도록 설계되었습니다.
+
+- **Claude Code**: `.system-agents/`의 턴제 상태 관리와 `/skills/`를 통한 CLI 명령어 실행에 집중합니다.
+- **Antigravity**: `.agents/workflows/`에 정의된 **터보(Turbo) 워크플로우**를 활용하여 고속 자동화 분석 및 구현을 수행합니다.
+- **협업 방식**: 두 에이전트는 `board.yaml`(작업 보드)과 `chatrooms/`(이력)를 공유합니다. Antigravity는 작업을 시작하기 전 보드를 확인하여 턴제 프로토콜을 준수할 수 있습니다.
+
 ## 빠른 시작
 
 ### 1. 스킬 설치
