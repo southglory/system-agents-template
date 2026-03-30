@@ -89,7 +89,11 @@ def get_new_messages(room_name, last_read):
 
     messages = []
     for fname in new_files:
-        meta, body = parse_frontmatter(room_dir / fname)
+        try:
+            meta, body = parse_frontmatter(room_dir / fname)
+        except Exception as e:
+            print(f"[봇] 경고: {room_name}/{fname} 파싱 실패 - {e}")
+            continue
         if meta and meta.get("type") in TASK_TYPES:
             messages.append({
                 "file": fname,
@@ -128,12 +132,17 @@ def find_task(board, ref):
     return None
 
 
+_bot_msg_counter = 0
+
+
 def send_bot_message(room, subject, body, ref=None):
+    global _bot_msg_counter
     room_dir = CHATROOMS / room
     room_dir.mkdir(parents=True, exist_ok=True)
 
     now = datetime.now(timezone.utc)
-    filename = now.strftime("%Y-%m-%d_%H%M%S") + "_bot.md"
+    _bot_msg_counter += 1
+    filename = now.strftime("%Y-%m-%d_%H%M%S") + f"_{_bot_msg_counter:02d}_bot.md"
 
     lines = ["---"]
     lines.append("from: bot")
@@ -215,7 +224,7 @@ def process_update(board, msg):
         send_bot_message(msg["room"], f"업데이트 실패: {ref}", f"@{meta['from']} 작업 {ref}을(를) 찾을 수 없습니다.", ref=ref)
         return f"[task-update] {ref} - 실패: 없는 작업"
 
-    updatable_fields = ("status", "assignee", "priority", "due", "notes")
+    updatable_fields = ("status", "assignee", "priority", "due", "notes", "title", "goal")
     for field in updatable_fields:
         if field in meta:
             task[field] = meta[field]
@@ -237,6 +246,8 @@ def process_done(board, msg):
 
     task["status"] = "완료"
     task["done"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    if msg["body"]:
+        task["notes"] = msg["body"]
 
     send_bot_message(msg["room"], f"완료 처리: {ref}", f"@{meta['from']} {ref} 작업이 완료 처리되었습니다.", ref=ref)
     return f"[task-done] {ref} - 완료"
