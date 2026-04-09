@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash",
+      "Edit",
+      "Write",
+      "WebFetch",
+      "WebSearch",
+      "Skill"
+    ],
+    "deny": [],
+    "defaultMode": "bypassPermissions"
+  }
+}

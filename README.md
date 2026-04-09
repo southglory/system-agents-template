@@ -15,7 +15,8 @@ Each agent runs as an independent Claude Code session, communicates through chat
 ```
 system-agents/
 ├── agents/
-│   ├── _example/              ← Agent template (Claude Code)
+│   ├── _example/              ← Agent template (manual copy)
+│   ├── recruiter/             ← Agent recruiter (/recruit)
 │   │   ├── CLAUDE.md          ← Behavior rules (per Phase)
 │   │   └── role.md            ← Role definition
 │   ├── antigravity/           ← Antigravity agent template
@@ -108,6 +109,17 @@ cp -r system-agents/skills/* ~/.claude/skills/
 ```
 
 ### 3. Create Agents
+
+**Option A: Use the recruiter (recommended)**
+
+```bash
+cd system-agents/agents/recruiter && claude
+# Then type: /recruit
+```
+
+The recruiter will ask questions about the new agent's role, skills, and collaborators, then generate all necessary files.
+
+**Option B: Manual copy**
 
 ```bash
 cp -r system-agents/agents/_example system-agents/agents/MyAgent

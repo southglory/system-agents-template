@@ -15,7 +15,8 @@ Claude Code 기반 턴제 멀티 에이전트 운영 프레임워크.
 ```
 system-agents/
 ├── agents/
-│   ├── _example/              ← 에이전트 템플릿 (Claude Code)
+│   ├── _example/              ← 에이전트 템플릿 (수동 복사용)
+│   ├── recruiter/             ← 에이전트 영입 담당 (/recruit)
 │   │   ├── CLAUDE.md          ← 행동 규칙 (턴제 Phase별)
 │   │   └── role.md            ← 역할 정의
 │   ├── antigravity/           ← Antigravity 에이전트 템플릿
@@ -86,6 +87,17 @@ cp -r skills/* ~/.claude/skills/
 ```
 
 ### 2. 에이전트 만들기
+
+**방법 A: recruiter 사용 (권장)**
+
+```bash
+cd agents/recruiter && claude
+# /recruit 입력
+```
+
+recruiter가 문답을 통해 새 에이전트의 역할, 기술 스택, 협업 구조를 정의하고 필요한 파일을 자동 생성한다.
+
+**방법 B: 수동 복사**
 
 ```bash
 cp -r agents/_example agents/MyAgent
