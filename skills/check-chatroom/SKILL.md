@@ -1,6 +1,7 @@
 ---
 name: check-chatroom
 description: 에이전트 간 채팅방의 안 읽은 메시지를 확인한다. 채팅방 이름을 인자로 받는다.
+user_invocable: true
 argument-hint: [채팅방이름 예: alice-bob]
 ---
 

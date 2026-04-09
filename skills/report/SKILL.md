@@ -1,6 +1,7 @@
 ---
 name: report
 description: 이번 턴의 작업 결과를 관련 채팅방에 자동으로 공유한다.
+user_invocable: true
 ---
 
 # 작업 결과 보고

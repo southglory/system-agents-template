@@ -1,6 +1,7 @@
 ---
 name: end-turn
 description: 현재 에이전트의 턴을 종료한다.
+user_invocable: true
 ---
 
 # 턴 종료

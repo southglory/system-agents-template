@@ -1,6 +1,7 @@
 ---
 name: check-mentions
 description: 모든 채팅방에서 나를 멘션한 안 읽은 메시지만 확인한다. 인자 없이 사용.
+user_invocable: true
 ---
 
 # 내 멘션 확인

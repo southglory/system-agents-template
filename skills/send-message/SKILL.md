@@ -1,6 +1,7 @@
 ---
 name: send-message
 description: 에이전트 간 채팅방에 메시지를 보낸다. 인자로 채팅방 이름을 받는다.
+user_invocable: true
 argument-hint: [채팅방이름 예: alice-bob]
 ---
 
