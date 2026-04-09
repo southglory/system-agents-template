@@ -15,7 +15,8 @@
 ```
 system-agents/
 ├── agents/
-│   ├── _example/              ← 智能体模板（Claude Code）
+│   ├── _example/              ← 智能体模板（手动复制）
+│   ├── recruiter/             ← 智能体招募员（/recruit）
 │   │   ├── CLAUDE.md          ← 行为规则（按阶段）
 │   │   └── role.md            ← 角色定义
 │   ├── antigravity/           ← Antigravity 智能体模板
@@ -86,6 +87,17 @@ cp -r skills/* ~/.claude/skills/
 ```
 
 ### 2. 创建智能体
+
+**方式 A：使用 recruiter（推荐）**
+
+```bash
+cd agents/recruiter && claude
+# 输入：/recruit
+```
+
+recruiter 会通过问答形式定义新智能体的角色、技能和协作关系，并自动生成所需文件。
+
+**方式 B：手动复制**
 
 ```bash
 cp -r agents/_example agents/MyAgent

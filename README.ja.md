@@ -15,7 +15,8 @@ Claude Code上に構築されたターンベースのマルチエージェント
 ```
 system-agents/
 ├── agents/
-│   ├── _example/              ← エージェントテンプレート（Claude Code）
+│   ├── _example/              ← エージェントテンプレート（手動コピー）
+│   ├── recruiter/             ← エージェントリクルーター（/recruit）
 │   │   ├── CLAUDE.md          ← 動作ルール（フェーズごと）
 │   │   └── role.md            ← 役割定義
 │   ├── antigravity/           ← Antigravity エージェントテンプレート
@@ -86,6 +87,17 @@ cp -r skills/* ~/.claude/skills/
 ```
 
 ### 2. エージェントの作成
+
+**方法 A：recruiter を使う（推奨）**
+
+```bash
+cd agents/recruiter && claude
+# /recruit と入力
+```
+
+recruiter が質問を通じて新しいエージェントの役割、スキル、協力体制を定義し、必要なファイルを自動生成します。
+
+**方法 B：手動コピー**
 
 ```bash
 cp -r agents/_example agents/MyAgent

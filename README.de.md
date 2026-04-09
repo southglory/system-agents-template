@@ -15,7 +15,8 @@ Jeder Agent wird als unabhängige Claude-Code-Sitzung ausgeführt, kommuniziert 
 ```
 system-agents/
 ├── agents/
-│   ├── _example/              ← Agenten-Vorlage (Claude Code)
+│   ├── _example/              ← Agenten-Vorlage (manuell kopieren)
+│   ├── recruiter/             ← Agenten-Recruiter (/recruit)
 │   │   ├── CLAUDE.md          ← Verhaltensregeln (pro Phase)
 │   │   └── role.md            ← Rollendefinition
 │   ├── antigravity/           ← Antigravity-Agenten-Vorlage
@@ -86,6 +87,17 @@ cp -r skills/* ~/.claude/skills/
 ```
 
 ### 2. Agenten erstellen
+
+**Option A: Recruiter verwenden (empfohlen)**
+
+```bash
+cd agents/recruiter && claude
+# Dann eingeben: /recruit
+```
+
+Der Recruiter stellt Fragen zur Rolle, den Skills und der Zusammenarbeit des neuen Agenten und generiert anschließend alle erforderlichen Dateien automatisch.
+
+**Option B: Manuell kopieren**
 
 ```bash
 cp -r agents/_example agents/MyAgent
