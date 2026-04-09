@@ -160,43 +160,99 @@ def send_bot_message(room, subject, body, ref=None):
     return filename
 
 
-def process_create(board, msg):
-    meta = msg["meta"]
+def _create_single_task(board, meta, title=None, overrides=None):
+    """Create a single task entry and append to board."""
+    overrides = overrides or {}
     task_id = next_task_id(board)
 
     task = {
         "id": task_id,
-        "title": meta.get("subject", ""),
-        "goal": meta.get("goal", ""),
-        "phase": meta.get("phase", ""),
-        "type": meta.get("task_type", "feature"),
-        "priority": meta.get("priority", "medium"),
+        "title": overrides.get("title", title or meta.get("subject", "")),
+        "goal": overrides.get("goal", meta.get("goal", "")),
+        "phase": overrides.get("phase", meta.get("phase", "")),
+        "type": overrides.get("type", meta.get("task_type", "feature")),
+        "priority": overrides.get("priority", meta.get("priority", "medium")),
         "created_by": meta.get("from", ""),
-        "assignee": meta.get("assignee", ""),
+        "assignee": overrides.get("assignee", meta.get("assignee", "")),
         "start": None,
-        "due": meta.get("due"),
+        "due": overrides.get("due", meta.get("due")),
         "done": None,
         "status": "대기",
-        "notes": msg["body"] if msg["body"] else None,
+        "notes": overrides.get("notes"),
     }
     board.setdefault("tasks", []).append(task)
+    return task_id, task
 
-    send_bot_message(
-        msg["room"],
-        f"작업 등록: {task_id}",
-        f"@{meta['from']} 요청한 작업이 등록되었습니다.\n"
-        f"- ID: {task_id}\n"
-        f"- 제목: {task['title']}\n"
-        f"- 담당: {task['assignee']}\n"
-        f"- 마감: {task['due']}",
-        ref=task_id,
-    )
-    return f"[task-create] {task_id} - {task['title']}"
+
+def _parse_batch_tasks(body):
+    """Parse 'tasks:' YAML block from message body. Returns list of dicts or None."""
+    if not body or "tasks:" not in body:
+        return None
+    # Find the tasks: block (may be preceded by other text)
+    idx = body.index("tasks:")
+    yaml_text = body[idx:]
+    try:
+        parsed = yaml.safe_load(yaml_text)
+        if isinstance(parsed, dict) and isinstance(parsed.get("tasks"), list):
+            return parsed["tasks"]
+    except yaml.YAMLError:
+        pass
+    return None
+
+
+def process_create(board, msg):
+    meta = msg["meta"]
+    batch = _parse_batch_tasks(msg["body"])
+
+    if batch:
+        # Batch mode: create multiple tasks from body YAML list
+        results = []
+        ids = []
+        for item in batch:
+            if not isinstance(item, dict) or "title" not in item:
+                continue
+            task_id, task = _create_single_task(board, meta, overrides=item)
+            ids.append(task_id)
+            results.append(f"  {task_id}: {task['title']}")
+
+        if not ids:
+            return "[task-create] 일괄 등록 실패: body에 유효한 태스크 없음"
+
+        summary = "\n".join(results)
+        send_bot_message(
+            msg["room"],
+            f"일괄 작업 등록: {ids[0]}~{ids[-1]}",
+            f"@{meta['from']} {len(ids)}개 작업이 등록되었습니다.\n{summary}",
+            ref=ids[0],
+        )
+        return f"[task-create] 일괄 {len(ids)}개: {', '.join(ids)}"
+    else:
+        # Single mode: create one task from frontmatter
+        task_id, task = _create_single_task(board, meta)
+        if msg["body"]:
+            task["notes"] = msg["body"]
+
+        send_bot_message(
+            msg["room"],
+            f"작업 등록: {task_id}",
+            f"@{meta['from']} 요청한 작업이 등록되었습니다.\n"
+            f"- ID: {task_id}\n"
+            f"- 제목: {task['title']}\n"
+            f"- 담당: {task['assignee']}\n"
+            f"- 마감: {task['due']}",
+            ref=task_id,
+        )
+        return f"[task-create] {task_id} - {task['title']}"
 
 
 def process_claim(board, msg):
     meta = msg["meta"]
     ref = meta.get("ref")
+
+    if not ref:
+        send_bot_message(msg["room"], "선점 실패: ref 누락", f"@{meta['from']} task-claim 메시지에 ref 필드가 없습니다. ref: T-NNN 형식으로 대상 태스크 ID를 지정하세요.")
+        return "[task-claim] 실패: ref 누락"
+
     task = find_task(board, ref)
 
     if not task:
@@ -218,6 +274,11 @@ def process_claim(board, msg):
 def process_update(board, msg):
     meta = msg["meta"]
     ref = meta.get("ref")
+
+    if not ref:
+        send_bot_message(msg["room"], "업데이트 실패: ref 누락", f"@{meta['from']} task-update 메시지에 ref 필드가 없습니다. ref: T-NNN 형식으로 대상 태스크 ID를 지정하세요.")
+        return "[task-update] 실패: ref 누락"
+
     task = find_task(board, ref)
 
     if not task:
@@ -238,6 +299,11 @@ def process_update(board, msg):
 def process_done(board, msg):
     meta = msg["meta"]
     ref = meta.get("ref")
+
+    if not ref:
+        send_bot_message(msg["room"], "완료 처리 실패: ref 누락", f"@{meta['from']} task-done 메시지에 ref 필드가 없습니다. ref: T-NNN 형식으로 대상 태스크 ID를 지정하세요.")
+        return "[task-done] 실패: ref 누락"
+
     task = find_task(board, ref)
 
     if not task:
@@ -247,7 +313,10 @@ def process_done(board, msg):
     task["status"] = "완료"
     task["done"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     if msg["body"]:
-        task["notes"] = msg["body"]
+        # Append to existing notes instead of overwriting
+        existing = task.get("notes") or ""
+        separator = "\n\n---\n\n" if existing else ""
+        task["notes"] = existing + separator + msg["body"]
 
     send_bot_message(msg["room"], f"완료 처리: {ref}", f"@{meta['from']} {ref} 작업이 완료 처리되었습니다.", ref=ref)
     return f"[task-done] {ref} - 완료"

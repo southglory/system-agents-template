@@ -1,5 +1,22 @@
 # 에이전트 간 채팅 프로토콜
 
+## Quick Reference — 메시지 타입별 필수 필드
+
+> **일괄 등록 지원.** `task-create`는 frontmatter로 1개, 또는 body에 YAML 리스트로 여러 태스크를 한 번에 등록할 수 있다. (아래 일괄 등록 참조)
+
+| type | 필수 frontmatter 필드 | 비고 |
+|------|----------------------|------|
+| `message` | `from`, `to`, `time`, `type`, `subject` | |
+| `task-create` | `from`, `to`, `time`, `type`, `subject` + 태스크 필드 | 일괄 등록: body에 YAML 리스트 가능 |
+| `task-update` | `from`, `to`, `time`, `type`, `subject`, **`ref`** | ⚠️ `ref` 없으면 봇이 태스크를 찾지 못함 |
+| `task-done` | `from`, `to`, `time`, `type`, `subject`, **`ref`** | ⚠️ `ref` 없으면 완료 처리 불가 |
+| `task-claim` | `from`, `to`, `time`, `type`, `subject`, **`ref`** | ⚠️ `ref` 없으면 선점 불가. Phase 2 전용 |
+| `turn-end` | `from`, `to`, `time`, `type`, `subject` | |
+
+> **`ref`는 봇이 태스크를 식별하는 유일한 키다.** `task-update`, `task-done`, `task-claim`에서 `ref`를 빠뜨리면 봇이 아무 처리도 하지 못한다. 반드시 `ref: T-NNN` 형식으로 포함할 것.
+
+---
+
 ## 구조
 
 ```
@@ -60,7 +77,10 @@ mentions: [bob]
 ```
 
 ### task-create — 작업 생성 요청
+
 필수 필드: `from`, `to`, `time`, `type`, `subject`, `goal`, `phase`, `assignee`, `priority`, `due`
+
+#### 단건 등록 (frontmatter에 태스크 정보 포함)
 
 ```markdown
 ---
@@ -79,7 +99,39 @@ due: 2026-03-25
 기존 레거시 인증 로직을 JWT 기반으로 전환.
 ```
 
+#### 일괄 등록 (body에 YAML 리스트)
+
+> body에 `tasks:` YAML 블록이 있으면 봇이 각각을 별도 태스크로 생성한다. frontmatter의 `goal`, `phase`, `assignee` 등은 리스트 내 항목이 생략한 필드의 기본값이 된다.
+
+```markdown
+---
+from: alice
+to: all
+time: 2026-03-19 14:31:00 UTC
+type: task-create
+subject: 백엔드 API 개편 태스크 일괄 등록
+goal: 대시보드 v2 출시
+phase: 백엔드 API 개편
+assignee: alice
+priority: medium
+---
+
+tasks:
+  - title: 사용자 인증 API 리팩토링
+    assignee: bob
+    priority: high
+    due: 2026-03-25
+  - title: 권한 체크 미들웨어 추가
+    due: 2026-03-27
+  - title: API 문서 갱신
+    assignee: charlie
+    due: 2026-03-28
+```
+
 ### task-update — 작업 상태/담당자 변경
+
+> **⚠️ `ref` 필수.** `ref: T-NNN`이 없으면 봇이 대상 태스크를 찾지 못해 업데이트가 무시된다.
+
 필수 필드: `from`, `to`, `time`, `type`, `subject`, `ref`
 
 ```markdown
@@ -97,6 +149,9 @@ status: 진행
 ```
 
 ### task-done — 작업 완료
+
+> **⚠️ `ref` 필수.** `ref: T-NNN`이 없으면 봇이 대상 태스크를 찾지 못해 완료 처리가 되지 않는다.
+
 필수 필드: `from`, `to`, `time`, `type`, `subject`, `ref`
 
 ```markdown
@@ -113,6 +168,9 @@ JWT 기반 인증으로 전환 완료. 테스트 통과.
 ```
 
 ### task-claim — 작업 선점 (Phase 2 전용)
+
+> **⚠️ `ref` 필수.** `ref: T-NNN`이 없으면 봇이 대상 태스크를 찾지 못해 선점이 되지 않는다. Phase 4에서는 사용 금지.
+
 필수 필드: `from`, `to`, `time`, `type`, `subject`, `ref`
 
 ```markdown
