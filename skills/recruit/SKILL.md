@@ -55,7 +55,9 @@ argument-hint: "[에이전트이름] (생략 시 이름부터 문답)"
   agents/{이름}/role.md
   agents/{이름}/CLAUDE.md
   agents/{이름}/.claude/settings.json
-  agents/{이름}/knowhow/          (빈 디렉토리)
+  agents/{이름}/.claude/skills/    (_example에서 복사: check-chatroom,
+                                    check-mentions, end-turn, send-message 등)
+  agents/{이름}/knowhow/           (빈 디렉토리)
 
 진행할까요?
 ```
@@ -94,6 +96,19 @@ description: {한줄 설명}
 
 `agents/_example/.claude/settings.json`을 그대로 복사한다.
 
+#### agents/{이름}/.claude/skills/
+
+`agents/_example/.claude/skills/` 디렉토리 전체를 그대로 복사한다. 여기에는 모든 에이전트가 공통으로 사용하는 기본 스킬이 들어 있다:
+
+- `check-chatroom/` — 채팅방 안 읽은 메시지 확인
+- `check-mentions/` — 나를 멘션한 메시지만 확인
+- `end-turn/` — 턴 종료
+- `send-message/` — 채팅방에 메시지 전송
+
+> **중요.** 이 단계를 빠뜨리면 신규 에이전트는 `/send-message`, `/check-chatroom` 같은 턴제 운영에 필수적인 슬래시 커맨드를 전혀 사용할 수 없다. 반드시 스킬 폴더 전체가 복사되었는지 확인한다. `_example`에 새 공통 스킬이 추가되면 신규 영입 시 자동으로 함께 복사된다.
+
+`cp -r agents/_example/.claude/skills agents/{이름}/.claude/` 한 번이면 충분하다(리크루터 자신도 동일한 구조로 셋업되어 있으므로 참고).
+
 #### agents/{이름}/knowhow/
 
 빈 디렉토리를 생성한다. (`.gitkeep` 파일 하나 포함)
@@ -107,7 +122,12 @@ description: {한줄 설명}
 
 ### 6. 완료 보고
 
-생성된 파일 목록과 다음 단계를 안내한다:
+생성된 파일 목록과 다음 단계를 안내한다. 보고 전에 반드시 아래 sanity check를 수행한다:
+
+- `agents/{이름}/.claude/skills/send-message/SKILL.md` 존재 확인 (없으면 스킬 복사가 누락된 것 — 3단계로 되돌아가 `cp -r`을 다시 수행)
+- `agents/{이름}/role.md`, `CLAUDE.md`, `.claude/settings.json` 존재 확인
+
+확인 완료 후 안내:
 - "Claude Code에서 `agents/{이름}/` 디렉토리로 이동하여 세션을 시작하세요"
 - "첫 턴에서 `/check-chatroom general`로 합류 메시지를 확인할 수 있습니다"
 
@@ -116,3 +136,4 @@ description: {한줄 설명}
 - 같은 이름의 에이전트 디렉토리가 이미 존재하면 **덮어쓰지 않고** 사용자에게 알린다
 - `_example/` 디렉토리는 템플릿으로 유지한다 (삭제하지 않음)
 - 이름은 반드시 소문자 영문 + 하이픈만 허용 (예: `data-analyst`, `frontend-dev`)
+- **`.claude/skills/` 복사를 절대 빠뜨리지 않는다.** 이 폴더가 없으면 신규 에이전트는 `/send-message`, `/check-chatroom`, `/end-turn` 등 턴제 운영에 필수적인 슬래시 커맨드를 전혀 쓸 수 없다. 영입 완료 직후 해당 경로의 존재를 반드시 검증할 것
