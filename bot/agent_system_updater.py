@@ -482,13 +482,17 @@ def cmd_diff(args) -> int:
         local_lines = local_file.read_text(encoding="utf-8", errors="replace").splitlines(keepends=True)
         upstream_lines = upstream_file.read_text(encoding="utf-8", errors="replace").splitlines(keepends=True)
 
+        # difflib hunk headers (---, +++, @@) come without trailing newlines;
+        # we want each diff line terminated, so use lineterm="\n" and rely on
+        # the fact that local_lines/upstream_lines were read with keepends=True.
         diff = difflib.unified_diff(
             local_lines, upstream_lines,
             fromfile=f"local/{rec.path}",
             tofile=f"upstream/{rec.path}",
-            lineterm="",
+            lineterm="\n",
         )
-        sys.stdout.write("".join(diff))
+        sys.stdout.writelines(diff)
+        # Ensure trailing newline in case the last file line lacked one.
         sys.stdout.write("\n")
     return 0
 
