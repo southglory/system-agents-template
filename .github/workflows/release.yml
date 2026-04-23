@@ -1,0 +1,56 @@
+name: release
+
+# Attach install.sh (and docs/INSTALL.md) to every GitHub Release. This lets
+# users pin to a stable version with the shields.io download-count badge path,
+# while the rolling `main` install.sh on raw.githubusercontent keeps working
+# for people who want the bleeding-edge version.
+#
+# Triggers:
+#   - push of any tag that looks like a version (v*)
+#   - manual dispatch from the Actions tab (for republishing)
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # required to create/update a Release and upload assets
+
+jobs:
+  attach:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify install.sh syntax before releasing
+        run: bash -n install.sh
+
+      - name: Create or update Release and upload install.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -e
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" \
+              --title "$TAG" \
+              --notes "Automated release. install.sh is attached as a pinnable asset.
+
+Pinned one-liner:
+\`\`\`bash
+curl -sSL https://github.com/\${{ github.repository }}/releases/download/$TAG/install.sh -o install.sh
+bash install.sh
+\`\`\`
+
+Rolling one-liner (main branch, always latest):
+\`\`\`bash
+curl -sSL https://raw.githubusercontent.com/\${{ github.repository }}/main/install.sh -o install.sh
+bash install.sh
+\`\`\`"
+          fi
+          gh release upload "$TAG" install.sh --clobber
+          if [ -f docs/INSTALL.md ]; then
+            gh release upload "$TAG" docs/INSTALL.md --clobber
+          fi

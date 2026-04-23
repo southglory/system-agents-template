@@ -3,6 +3,8 @@
 ![GitHub stars](https://img.shields.io/github/stars/southglory/system-agents-template?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/southglory/system-agents-template?style=social)
 ![GitHub license](https://img.shields.io/github/license/southglory/system-agents-template)
+![install CI](https://github.com/southglory/system-agents-template/actions/workflows/install.yml/badge.svg)
+![Release](https://img.shields.io/github/v/release/southglory/system-agents-template)
 
 [English](README.md) | [한국어](README.ko.md) | [中文](README.zh.md) | [日本語](README.ja.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md)
 
@@ -12,10 +14,20 @@ Cada agente se ejecuta como una sesión independiente de Claude Code, se comunic
 
 ## 🚀 Instalación en una línea
 
+Rolling (siempre el último `main`):
+
 ```bash
 curl -sSL https://raw.githubusercontent.com/southglory/system-agents-template/main/install.sh -o install.sh
 bash install.sh
 ```
+
+Fijado a un Release estable (recomendado para reproducibilidad):
+
+```bash
+curl -sSL https://github.com/southglory/system-agents-template/releases/latest/download/install.sh -o install.sh
+bash install.sh
+```
+
 
 Hace **como máximo dos preguntas** — la ubicación de instalación y qué plugins traer desde [`system-agents-plugins`](https://github.com/southglory/system-agents-plugins). Configura la plantilla, el agente `recruiter`, los plugins seleccionados, las skills globales de Claude Code, las plantillas `.env` y un manifiesto para las futuras herramientas de actualización.
 
@@ -319,3 +331,7 @@ Licencia MIT. Úsalo libremente.
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=southglory/system-agents-template&type=Date" />
  </picture>
 </a>
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=southglory/system-agents-template,southglory/system-agents-plugins&type=Date)](https://star-history.com/#southglory/system-agents-template&southglory/system-agents-plugins&Date)

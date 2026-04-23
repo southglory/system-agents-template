@@ -3,6 +3,8 @@
 ![GitHub stars](https://img.shields.io/github/stars/southglory/system-agents-template?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/southglory/system-agents-template?style=social)
 ![GitHub license](https://img.shields.io/github/license/southglory/system-agents-template)
+![install CI](https://github.com/southglory/system-agents-template/actions/workflows/install.yml/badge.svg)
+![Release](https://img.shields.io/github/v/release/southglory/system-agents-template)
 
 [English](README.md) | [한국어](README.ko.md) | [中文](README.zh.md) | [日本語](README.ja.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md)
 
@@ -12,12 +14,21 @@ Each agent runs as an independent Claude Code session, communicates through chat
 
 ## 🚀 One-line install
 
+Rolling (always latest `main`):
+
 ```bash
 curl -sSL https://raw.githubusercontent.com/southglory/system-agents-template/main/install.sh -o install.sh
 bash install.sh
 ```
 
-Answers **at most two questions** — install location and which plugins to pull from [`system-agents-plugins`](https://github.com/southglory/system-agents-plugins). Sets up the template, the `recruiter` agent, selected plugins, global Claude Code skills, `.env` templates, and a manifest for future update tooling.
+Pinned to a stable Release (recommended for reproducibility):
+
+```bash
+curl -sSL https://github.com/southglory/system-agents-template/releases/latest/download/install.sh -o install.sh
+bash install.sh
+```
+
+Both answer **at most two questions** — install location and which plugins to pull from [`system-agents-plugins`](https://github.com/southglory/system-agents-plugins). Either way sets up the template, the `recruiter` agent, selected plugins, global Claude Code skills, `.env` templates, and a manifest for future update tooling.
 
 Prefer explicit steps or flags? See [`docs/INSTALL.md`](docs/INSTALL.md).
 
@@ -353,10 +364,4 @@ MIT License. Use freely.
 
 ## Star History
 
-<a href="https://star-history.com/#southglory/system-agents-template&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=southglory/system-agents-template&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=southglory/system-agents-template&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=southglory/system-agents-template&type=Date" />
- </picture>
-</a>
+[![Star History Chart](https://api.star-history.com/svg?repos=southglory/system-agents-template,southglory/system-agents-plugins&type=Date)](https://star-history.com/#southglory/system-agents-template&southglory/system-agents-plugins&Date)

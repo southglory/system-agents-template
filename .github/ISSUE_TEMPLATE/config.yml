@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: system-agents-plugins (Discord plugin, future plugins)
+    url: https://github.com/southglory/system-agents-plugins/issues
+    about: Plugin bugs or feature requests live on the plugins repo.
+  - name: Installer / update docs
+    url: https://github.com/southglory/system-agents-template/blob/main/docs/INSTALL.md
+    about: Read this first if you're stuck on install.sh or /agent-system-* skills.

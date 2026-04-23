@@ -1,0 +1,33 @@
+name: Feature request
+description: Suggest an enhancement to the template, installer, or update tooling.
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Start from the pain, not the solution.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: What would you like the template to do differently? A concrete API / UX sketch beats a description.
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: This belongs in the template core (agents/, bot/turn_bot.py, chatrooms/, tasks/)
+        - label: This belongs in the installer (install.sh, docs/INSTALL.md)
+        - label: This belongs in the update tooling (agent_system_updater + /agent-system-* skills)
+        - label: This is actually a plugin idea (belongs in system-agents-plugins)

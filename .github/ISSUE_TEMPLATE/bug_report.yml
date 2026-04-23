@@ -1,0 +1,62 @@
+name: Bug report
+description: Something in the template or the installer is not behaving as documented.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the behavior you observed.
+      placeholder: |
+        e.g. "Running `bash install.sh --dest ... --plugins discord-huddle --yes` failed with ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      placeholder: "The installer should create a manifest and exit with code 0."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: The exact commands you ran, starting from a clean state.
+      render: bash
+    validations:
+      required: true
+
+  - type: input
+    id: installer-source
+    attributes:
+      label: Which installer entrypoint?
+      description: Rolling (`raw.githubusercontent.com`) or Pinned (`releases/.../install.sh`)? Paste the URL you used.
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "e.g. Windows 11, macOS 14, Ubuntu 22.04"
+    validations:
+      required: true
+
+  - type: input
+    id: versions
+    attributes:
+      label: Tool versions
+      placeholder: "bash --version, git --version, python --version"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output / logs
+      description: Paste the terminal output. Strip any tokens before sharing.
+      render: shell

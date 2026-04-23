@@ -3,6 +3,8 @@
 ![GitHub stars](https://img.shields.io/github/stars/southglory/system-agents-template?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/southglory/system-agents-template?style=social)
 ![GitHub license](https://img.shields.io/github/license/southglory/system-agents-template)
+![install CI](https://github.com/southglory/system-agents-template/actions/workflows/install.yml/badge.svg)
+![Release](https://img.shields.io/github/v/release/southglory/system-agents-template)
 
 [English](README.md) | [한국어](README.ko.md) | [中文](README.zh.md) | [日本語](README.ja.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md)
 
@@ -12,10 +14,20 @@
 
 ## 🚀 一行安装
 
+滚动（始终跟随 `main`）:
+
 ```bash
 curl -sSL https://raw.githubusercontent.com/southglory/system-agents-template/main/install.sh -o install.sh
 bash install.sh
 ```
+
+固定到稳定 Release（推荐以便重现）:
+
+```bash
+curl -sSL https://github.com/southglory/system-agents-template/releases/latest/download/install.sh -o install.sh
+bash install.sh
+```
+
 
 **最多只问两个问题** — 安装位置和要从 [`system-agents-plugins`](https://github.com/southglory/system-agents-plugins) 中选择安装的插件。脚本会一次性设置好模板本体、`recruiter` 智能体、所选插件、Claude Code 全局技能、`.env` 模板以及供未来更新工具使用的清单文件。
 
@@ -319,3 +331,7 @@ MIT 许可证。自由使用。
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=southglory/system-agents-template&type=Date" />
  </picture>
 </a>
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=southglory/system-agents-template,southglory/system-agents-plugins&type=Date)](https://star-history.com/#southglory/system-agents-template&southglory/system-agents-plugins&Date)

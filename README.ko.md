@@ -3,6 +3,8 @@
 ![GitHub stars](https://img.shields.io/github/stars/southglory/system-agents-template?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/southglory/system-agents-template?style=social)
 ![GitHub license](https://img.shields.io/github/license/southglory/system-agents-template)
+![install CI](https://github.com/southglory/system-agents-template/actions/workflows/install.yml/badge.svg)
+![Release](https://img.shields.io/github/v/release/southglory/system-agents-template)
 
 [English](README.md) | [한국어](README.ko.md) | [中文](README.zh.md) | [日本語](README.ja.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md)
 
@@ -12,10 +14,20 @@ Claude Code 기반 턴제 멀티 에이전트 운영 프레임워크.
 
 ## 🚀 한 줄 설치
 
+롤링 (항상 `main` 최신):
+
 ```bash
 curl -sSL https://raw.githubusercontent.com/southglory/system-agents-template/main/install.sh -o install.sh
 bash install.sh
 ```
+
+고정 릴리즈 (재현성 권장):
+
+```bash
+curl -sSL https://github.com/southglory/system-agents-template/releases/latest/download/install.sh -o install.sh
+bash install.sh
+```
+
 
 사용자에게 **최대 두 가지 질문**만 한다 — 설치 위치와 [`system-agents-plugins`](https://github.com/southglory/system-agents-plugins)에서 가져올 플러그인 선택. 템플릿 본체, `recruiter` 에이전트, 선택한 플러그인, Claude Code 전역 스킬 등록, `.env` 템플릿, 업데이트 도구용 매니페스트까지 한 번에 세팅한다.
 
@@ -312,10 +324,4 @@ MIT License. 자유롭게 사용하세요.
 
 ## Star History
 
-<a href="https://star-history.com/#southglory/system-agents-template&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=southglory/system-agents-template&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=southglory/system-agents-template&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=southglory/system-agents-template&type=Date" />
- </picture>
-</a>
+[![Star History Chart](https://api.star-history.com/svg?repos=southglory/system-agents-template,southglory/system-agents-plugins&type=Date)](https://star-history.com/#southglory/system-agents-template&southglory/system-agents-plugins&Date)
