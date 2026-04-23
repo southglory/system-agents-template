@@ -80,6 +80,25 @@ Both agents share the same `board.yaml` and `chatrooms/` — they follow the sam
 
 ## Quick Start
 
+### Option 0 — `install.sh` (recommended)
+
+A single script clones the template into your project, registers skills in `~/.claude/skills/` (with per-file backup of anything you've customized), optionally installs plugins from [`system-agents-plugins`](https://github.com/southglory/system-agents-plugins), and writes a manifest so future update tooling knows what's installed. It asks at most two things: install location and which plugins to install.
+
+```bash
+# interactive — one prompt for location, one for plugins
+./install.sh
+
+# fully automatic
+./install.sh --dest ~/my-proj/agent-system --plugins discord-huddle --yes
+
+# template only, no plugins
+./install.sh --dest ~/my-proj/agent-system --plugins "" --yes
+```
+
+See [`docs/INSTALL.md`](docs/INSTALL.md) for the full flag reference, skill-collision modes, and a manual-install fallback.
+
+If you prefer to install everything by hand, continue with the steps below.
+
 ### 1. Setup in your project
 
 Copy the entire template into a single folder in your project root:
