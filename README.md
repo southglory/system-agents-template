@@ -10,6 +10,17 @@ A turn-based multi-agent framework built on Claude Code.
 
 Each agent runs as an independent Claude Code session, communicates through chatrooms, and a bot automatically manages the task board.
 
+## 🚀 One-line install
+
+```bash
+curl -sSL https://raw.githubusercontent.com/southglory/system-agents-template/main/install.sh -o install.sh
+bash install.sh
+```
+
+Answers **at most two questions** — install location and which plugins to pull from [`system-agents-plugins`](https://github.com/southglory/system-agents-plugins). Sets up the template, the `recruiter` agent, selected plugins, global Claude Code skills, `.env` templates, and a manifest for future update tooling.
+
+Prefer explicit steps or flags? See [`docs/INSTALL.md`](docs/INSTALL.md).
+
 ## Structure
 
 ```

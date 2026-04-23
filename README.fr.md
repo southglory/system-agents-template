@@ -10,6 +10,17 @@ Un framework multi-agents basé sur les tours, construit sur Claude Code.
 
 Chaque agent s'exécute en tant que session Claude Code indépendante, communique via des salons de discussion, et un bot gère automatiquement le tableau des tâches.
 
+## 🚀 Installation en une ligne
+
+```bash
+curl -sSL https://raw.githubusercontent.com/southglory/system-agents-template/main/install.sh -o install.sh
+bash install.sh
+```
+
+Pose **au maximum deux questions** — l'emplacement d'installation et les plugins à récupérer depuis [`system-agents-plugins`](https://github.com/southglory/system-agents-plugins). Configure le template, l'agent `recruiter`, les plugins sélectionnés, les compétences globales de Claude Code, les modèles `.env` et un manifeste pour les futurs outils de mise à jour, le tout en une seule étape.
+
+Pour les étapes manuelles ou l'ensemble des options, voir [`docs/INSTALL.md`](docs/INSTALL.md).
+
 ## Structure
 
 ```

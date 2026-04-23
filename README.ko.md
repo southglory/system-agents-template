@@ -10,6 +10,17 @@ Claude Code 기반 턴제 멀티 에이전트 운영 프레임워크.
 
 각 에이전트가 독립적인 Claude Code 세션으로 동작하며, 채팅방을 통해 소통하고, 봇이 작업 보드를 자동 관리한다.
 
+## 🚀 한 줄 설치
+
+```bash
+curl -sSL https://raw.githubusercontent.com/southglory/system-agents-template/main/install.sh -o install.sh
+bash install.sh
+```
+
+사용자에게 **최대 두 가지 질문**만 한다 — 설치 위치와 [`system-agents-plugins`](https://github.com/southglory/system-agents-plugins)에서 가져올 플러그인 선택. 템플릿 본체, `recruiter` 에이전트, 선택한 플러그인, Claude Code 전역 스킬 등록, `.env` 템플릿, 업데이트 도구용 매니페스트까지 한 번에 세팅한다.
+
+수동 설치나 플래그 옵션은 [`docs/INSTALL.md`](docs/INSTALL.md) 참조.
+
 ## 구조
 
 ```

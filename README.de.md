@@ -10,6 +10,17 @@ Ein rundenbasiertes Multi-Agenten-Framework, aufgebaut auf Claude Code.
 
 Jeder Agent wird als unabhängige Claude-Code-Sitzung ausgeführt, kommuniziert über Chaträume, und ein Bot verwaltet automatisch das Aufgabenboard.
 
+## 🚀 Installation in einer Zeile
+
+```bash
+curl -sSL https://raw.githubusercontent.com/southglory/system-agents-template/main/install.sh -o install.sh
+bash install.sh
+```
+
+Stellt **höchstens zwei Fragen** — den Installationsort und welche Plugins aus [`system-agents-plugins`](https://github.com/southglory/system-agents-plugins) geholt werden sollen. Richtet das Template, den `recruiter`-Agent, die ausgewählten Plugins, die globalen Claude-Code-Skills, `.env`-Vorlagen und ein Manifest für zukünftige Update-Werkzeuge in einem Rutsch ein.
+
+Wer lieber die manuellen Schritte oder die vollständigen Flags sieht: [`docs/INSTALL.md`](docs/INSTALL.md).
+
 ## Struktur
 
 ```

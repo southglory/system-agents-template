@@ -10,6 +10,17 @@ Claude Code上に構築されたターンベースのマルチエージェント
 
 各エージェントは独立したClaude Codeセッションとして実行され、チャットルームを通じて通信し、ボットがタスクボードを自動管理します。
 
+## 🚀 ワンラインインストール
+
+```bash
+curl -sSL https://raw.githubusercontent.com/southglory/system-agents-template/main/install.sh -o install.sh
+bash install.sh
+```
+
+ユーザーに訊くのは**最大2つだけ** — インストール先と、[`system-agents-plugins`](https://github.com/southglory/system-agents-plugins) から取得するプラグインの選択です。テンプレート本体、`recruiter` エージェント、選択したプラグイン、Claude Code 全体スキルの登録、`.env` テンプレート、更新ツール用マニフェストまで一度にセットアップされます。
+
+手動インストール手順と全フラグは [`docs/INSTALL.md`](docs/INSTALL.md) を参照してください。
+
 ## 構成
 
 ```

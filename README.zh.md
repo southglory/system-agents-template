@@ -10,6 +10,17 @@
 
 每个智能体作为独立的 Claude Code 会话运行，通过聊天室进行通信，由机器人自动管理任务看板。
 
+## 🚀 一行安装
+
+```bash
+curl -sSL https://raw.githubusercontent.com/southglory/system-agents-template/main/install.sh -o install.sh
+bash install.sh
+```
+
+**最多只问两个问题** — 安装位置和要从 [`system-agents-plugins`](https://github.com/southglory/system-agents-plugins) 中选择安装的插件。脚本会一次性设置好模板本体、`recruiter` 智能体、所选插件、Claude Code 全局技能、`.env` 模板以及供未来更新工具使用的清单文件。
+
+想手动安装或查看全部参数，请参阅 [`docs/INSTALL.md`](docs/INSTALL.md)。
+
 ## 结构
 
 ```
