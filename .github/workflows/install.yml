@@ -1,0 +1,92 @@
+name: install
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  syntax:
+    name: install.sh syntax (shellcheck + bash -n)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bash syntax check
+        run: bash -n install.sh
+
+      - name: Shellcheck (informational — no fail)
+        run: |
+          sudo apt-get update && sudo apt-get install -y shellcheck
+          shellcheck --severity=error install.sh || echo "shellcheck findings above (non-blocking)"
+
+  smoke:
+    name: install.sh dry-run (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Help should work
+        run: bash install.sh --help
+
+      - name: --yes requires --dest (must fail)
+        run: |
+          set +e
+          output=$(bash install.sh --yes 2>&1)
+          rc=$?
+          if [ "$rc" -eq 0 ]; then
+            echo "Expected non-zero exit but got 0"
+            exit 1
+          fi
+          if ! echo "$output" | grep -q 'requires --dest'; then
+            echo "Expected '--yes requires --dest' message. Got:"
+            echo "$output"
+            exit 1
+          fi
+
+      - name: Unknown flag should error
+        run: |
+          set +e
+          output=$(bash install.sh --bogus-flag 2>&1)
+          rc=$?
+          if [ "$rc" -eq 0 ]; then
+            echo "Expected non-zero exit on bogus flag"
+            exit 1
+          fi
+
+      - name: Full install against self-hosted upstreams
+        run: |
+          # Use current checkout as the template source, fetch plugins from
+          # the actual public repo so we exercise real network + git clone paths.
+          bash install.sh \
+            --dest "$RUNNER_TEMP/ci-install" \
+            --plugins discord-huddle \
+            --template-repo "$(pwd)" \
+            --skills-global=off \
+            --yes
+
+      - name: Verify installed structure
+        run: |
+          set -e
+          dest="$RUNNER_TEMP/ci-install"
+          test -d "$dest/agents/recruiter" || (echo "recruiter missing"; exit 1)
+          test -d "$dest/bot/discord_lib" || (echo "discord_lib missing"; exit 1)
+          test -f "$dest/.agent-system-manifest.yaml" || (echo "manifest missing"; exit 1)
+          test -f "$dest/skills/discord-huddle-sync/SKILL.md" || (echo "discord-huddle-sync skill missing"; exit 1)
+          echo "✓ all structural checks passed"
+
+      - name: Empty plugins install (template-only)
+        run: |
+          bash install.sh \
+            --dest "$RUNNER_TEMP/ci-install-empty" \
+            --plugins "" \
+            --template-repo "$(pwd)" \
+            --skills-global=off \
+            --yes
+          test ! -d "$RUNNER_TEMP/ci-install-empty/bot/discord_lib" || (echo "discord_lib should NOT be present"; exit 1)
+          echo "✓ template-only install clean"
