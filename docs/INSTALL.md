@@ -96,4 +96,17 @@ Manifest creation is skipped in this flow. Future update tooling assumes one exi
 
 - Does not modify your project's root `.gitignore`. Runtime data dirs isolate themselves.
 - Does not install Python packages. Run `pip install -r requirements.txt` (and `requirements-optional.txt` / `requirements-dev.txt` as needed) yourself.
-- Does not check for or apply upstream updates. That's the job of `/agent-system-check-updates` (future) once the manifest exists.
+- Does not check for or apply upstream updates on its own. Use the sibling skills instead once the manifest exists:
+  - `/agent-system-check-updates` — summarize what changed upstream (untouched/user-modified × same/changed × 4 buckets)
+  - `/agent-system-diff <path>` — show unified diff for one tracked file
+  - `/agent-system-update` (dry-run) / `/agent-system-update --apply` — adopt safe updates; pass `--include-conflicts` to also overwrite locally-modified files (backed up as `.bak.<ts>`)
+
+## Manifest schema
+
+`.agent-system-manifest.yaml` uses version 2 (written by install.sh ≥ this release). It records:
+
+- `template.source` + `template.sha` — where the template was cloned from and which commit
+- `plugins[]` — same two fields per plugin, plus the `name`
+- `files[]` — per-file `{path, origin, sha256}`. `origin` is either `template` or `plugin:<name>`.
+
+The updater uses the sha256 field to decide whether a local file has been edited since install. Manual edits of the manifest are supported but discouraged; re-running `install.sh` rebuilds it from scratch.

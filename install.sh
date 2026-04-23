@@ -426,12 +426,117 @@ else
 fi
 
 # ----- Manifest --------------------------------------------------------------
+#
+# Schema v2 adds per-file sha256 records so future tooling
+# (/agent-system-check-updates, /agent-system-diff, /agent-system-update)
+# can tell whether a local file is:
+#   - identical to the upstream version recorded at install time (untouched),
+#   - modified by the user since install (sha differs from manifest), or
+#   - missing (present in manifest, not on disk).
+#
+# files: entries are keyed by path relative to DEST. origin tells us which
+# upstream the file came from (template | plugin:<name>), so the updater
+# can re-fetch the right source.
 
 manifest_path="$DEST/.agent-system-manifest.yaml"
 iso_now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+# sha256 helper — prefer sha256sum (Linux), fall back to shasum -a 256 (macOS)
+_sha256() {
+    if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum "$1" | awk '{print $1}'
+    else
+        shasum -a 256 "$1" | awk '{print $1}'
+    fi
+}
+
+# Build file records: each entry is "origin<TAB>relative_path<TAB>sha256".
+# Origins:
+#   template  = came from the template repo (copied in "Installing template..." step)
+#   plugin:<name> = came from a specific plugin
+# We determine origin by checking which source tree the path existed in.
+declare -a FILE_RECORDS=()
+
+_emit_files_for_origin() {
+    local origin="$1"      # "template" or "plugin:<name>"
+    local src_root="$2"    # source directory to compare paths against
+    shift 2
+    # Remaining args are the rel-path roots to scan inside src_root (e.g. bot skills agents).
+    # Empty = scan everything.
+    local rel
+    while IFS= read -r -d '' f; do
+        rel="${f#"$DEST/"}"
+        # Skip manifest itself, secrets dir, and the auto-generated runtime gitignore files
+        case "$rel" in
+            .agent-system-manifest.yaml|.claude/secrets/*) continue ;;
+        esac
+        # Only record files whose path also exists in the source tree (i.e. came from this origin).
+        # This lets template + plugin files be distinguished when plugins merge into DEST/bot etc.
+        local src_candidate="$src_root/$rel"
+        if [ -f "$src_candidate" ]; then
+            local sha
+            sha="$(_sha256 "$f")"
+            FILE_RECORDS+=("$origin"$'\t'"$rel"$'\t'"$sha")
+        fi
+    done < <(find "$DEST" -type f -print0)
+}
+
+info ""
+info "Recording file hashes for manifest..."
+
+# Template origin first — this tags all files that came from the template repo.
+_emit_files_for_origin "template" "$tmp_root/template-repo"
+
+# Plugin files: emit per plugin. Because plugin bot/skills/requirements merge
+# into DEST root, those paths will already have been tagged "template" if both
+# trees contain same-named files. To keep the manifest unambiguous we re-tag
+# any file whose contents match a plugin source as plugin-origin (overwriting
+# the template tag). This handles the common case of plugins shipping
+# requirements.txt that replaces the template's.
+for idx in "${SELECTED[@]}"; do
+    p_name="${SELECTABLE_NAMES[$idx]}"
+    p_path="${SELECTABLE_PATHS[$idx]}"
+    plugin_src="$tmp_root/plugins-repo/${p_path%/}"
+
+    # Gather relative paths inside the plugin source tree (excluding docs/
+    # samples/ README — those go to plugins/<name>/ in DEST and are already
+    # picked up by the template-origin scan as NOT matching).
+    declare -a plugin_files=()
+    while IFS= read -r -d '' pf; do
+        plugin_rel="${pf#"$plugin_src/"}"
+        # Map plugin internal layout to DEST layout:
+        # - bot/**, skills/**, requirements*.txt : merged into DEST root
+        # - docs/**, samples/**, README*.md      : copied to DEST/plugins/<name>/
+        case "$plugin_rel" in
+            docs/*|samples/*|README.md|README.*.md)
+                dest_rel="plugins/$p_name/$plugin_rel"
+                ;;
+            *)
+                dest_rel="$plugin_rel"
+                ;;
+        esac
+        dest_file="$DEST/$dest_rel"
+        if [ -f "$dest_file" ]; then
+            sha="$(_sha256 "$dest_file")"
+            # Remove any existing record for this path (template or earlier plugin)
+            # then append the plugin-tagged one. Simple linear filter is fine for
+            # the record counts we deal with (<2k).
+            declare -a _filtered=()
+            for rec in "${FILE_RECORDS[@]}"; do
+                IFS=$'\t' read -r _o _p _s <<<"$rec"
+                [ "$_p" = "$dest_rel" ] && continue
+                _filtered+=("$rec")
+            done
+            FILE_RECORDS=("${_filtered[@]}")
+            FILE_RECORDS+=("plugin:$p_name"$'\t'"$dest_rel"$'\t'"$sha")
+        fi
+    done < <(find "$plugin_src" -type f -print0)
+done
+
 {
     printf '# Tracks what was installed so future tooling can diff against upstream.\n'
     printf '# Managed by install.sh — hand-edit only if you know what you are doing.\n'
+    printf 'manifest_version: 2\n'
     printf 'template:\n'
     printf '  source: %s\n' "$TEMPLATE_REPO"
     printf '  sha: %s\n' "$template_sha"
@@ -445,6 +550,20 @@ iso_now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
             printf '    source: %s\n' "$PLUGINS_REPO"
             printf '    sha: %s\n' "$plugins_sha"
             printf '    installed_at: %s\n' "$iso_now"
+        done
+    fi
+    printf 'files:\n'
+    if [ ${#FILE_RECORDS[@]} -eq 0 ]; then
+        printf '  []\n'
+    else
+        # Sort records by path for deterministic output. Using a NUL-safe pipeline
+        # so paths with spaces / tabs survive (unlikely in this tree but safe).
+        mapfile -t _sorted < <(printf '%s\n' "${FILE_RECORDS[@]}" | sort -t$'\t' -k2,2)
+        for rec in "${_sorted[@]}"; do
+            IFS=$'\t' read -r _o _p _s <<<"$rec"
+            printf '  - path: %s\n' "$_p"
+            printf '    origin: %s\n' "$_o"
+            printf '    sha256: %s\n' "$_s"
         done
     fi
 } > "$manifest_path"
