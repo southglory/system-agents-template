@@ -181,7 +181,11 @@ for e in entries:
 PYEOF
 }
 
-mapfile -t PLUGIN_LINES < <(parse_plugins)
+# macOS ships Bash 3.2 (no mapfile). Use a read loop for portability.
+PLUGIN_LINES=()
+while IFS= read -r _line || [ -n "$_line" ]; do
+    PLUGIN_LINES+=("$_line")
+done < <(parse_plugins)
 
 # ----- Prompt: plugin selection ----------------------------------------------
 
@@ -558,7 +562,10 @@ done
     else
         # Sort records by path for deterministic output. Using a NUL-safe pipeline
         # so paths with spaces / tabs survive (unlikely in this tree but safe).
-        mapfile -t _sorted < <(printf '%s\n' "${FILE_RECORDS[@]}" | sort -t$'\t' -k2,2)
+        _sorted=()
+        while IFS= read -r _line || [ -n "$_line" ]; do
+            _sorted+=("$_line")
+        done < <(printf '%s\n' "${FILE_RECORDS[@]}" | sort -t$'\t' -k2,2)
         for rec in "${_sorted[@]}"; do
             IFS=$'\t' read -r _o _p _s <<<"$rec"
             printf '  - path: %s\n' "$_p"
