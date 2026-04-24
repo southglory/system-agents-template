@@ -1,13 +1,13 @@
 name: release
 
-# Attach install.sh (and docs/INSTALL.md) to every GitHub Release. This lets
-# users pin to a stable version with the shields.io download-count badge path,
-# while the rolling `main` install.sh on raw.githubusercontent keeps working
-# for people who want the bleeding-edge version.
+# Attach install.sh (and docs/INSTALL.md) to every GitHub Release, so
+# users can pin to a stable version via `releases/latest/download/install.sh`
+# while the rolling `main` install.sh on raw.githubusercontent keeps
+# working for people who want bleeding-edge.
 #
 # Triggers:
-#   - push of any tag that looks like a version (v*)
-#   - manual dispatch from the Actions tab (for republishing)
+#   - any tag push matching v*
+#   - manual workflow_dispatch (for republishing from the Actions tab)
 
 on:
   push:
@@ -21,36 +21,46 @@ permissions:
 jobs:
   attach:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      TAG: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Verify install.sh syntax before releasing
         run: bash -n install.sh
 
-      - name: Create or update Release and upload install.sh
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
+      - name: Write release notes to a file (avoids yaml heredoc escaping)
+        run: |
+          cat > /tmp/notes.md <<NOTES
+          Automated release. install.sh is attached as a pinnable asset.
+
+          Pinned one-liner:
+          \`\`\`bash
+          curl -sSL https://github.com/${REPO}/releases/download/${TAG}/install.sh -o install.sh
+          bash install.sh
+          \`\`\`
+
+          Rolling one-liner (main branch, always latest):
+          \`\`\`bash
+          curl -sSL https://raw.githubusercontent.com/${REPO}/main/install.sh -o install.sh
+          bash install.sh
+          \`\`\`
+          NOTES
+
+      - name: Create release if missing
         run: |
           set -e
           if ! gh release view "$TAG" >/dev/null 2>&1; then
-            gh release create "$TAG" \
-              --title "$TAG" \
-              --notes "Automated release. install.sh is attached as a pinnable asset.
-
-Pinned one-liner:
-\`\`\`bash
-curl -sSL https://github.com/\${{ github.repository }}/releases/download/$TAG/install.sh -o install.sh
-bash install.sh
-\`\`\`
-
-Rolling one-liner (main branch, always latest):
-\`\`\`bash
-curl -sSL https://raw.githubusercontent.com/\${{ github.repository }}/main/install.sh -o install.sh
-bash install.sh
-\`\`\`"
+            gh release create "$TAG" --title "$TAG" --notes-file /tmp/notes.md
           fi
-          gh release upload "$TAG" install.sh --clobber
+
+      - name: Upload install.sh (clobber if already attached)
+        run: gh release upload "$TAG" install.sh --clobber
+
+      - name: Upload docs/INSTALL.md if it exists
+        run: |
           if [ -f docs/INSTALL.md ]; then
             gh release upload "$TAG" docs/INSTALL.md --clobber
           fi
