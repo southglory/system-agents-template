@@ -141,7 +141,13 @@ plugins_yaml="$tmp_root/plugins-repo/plugins.yaml"
 # Emit one tab-separated line per plugin: name<TAB>status<TAB>path<TAB>summary
 parse_plugins() {
     "$PY" - "$plugins_yaml" <<'PYEOF'
-import sys, re
+import sys, re, io
+# Force UTF-8 on stdout so non-ASCII characters in plugin summaries
+# (em-dash, arrows, CJK, etc.) don't crash on Windows cp949 consoles.
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except AttributeError:
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 path = sys.argv[1]
 with open(path, "r", encoding="utf-8") as f:
     text = f.read()
