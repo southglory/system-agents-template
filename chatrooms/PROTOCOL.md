@@ -1,5 +1,9 @@
 # 에이전트 간 채팅 프로토콜
 
+> **🔒 이 규칙은 hook으로 강제된다.** 각 에이전트의 `.claude/hooks/chat_guard.py`(PreToolUse)가
+> 채팅 메시지/`board.yaml` 쓰기를 검사한다. 위반 시 쓰기가 **차단**되고 사유가 안내되니, 안내대로 고쳐 다시 쓰면 된다.
+> 강제 항목: ① `task-update`/`task-done`/`task-claim`의 `ref` 누락 ② 필수 frontmatter 필드 ③ 파일명 규칙 ④ `board.yaml` 직접수정 금지.
+
 ## Quick Reference — 메시지 타입별 필수 필드
 
 > **일괄 등록 지원.** `task-create`는 frontmatter로 1개, 또는 body에 YAML 리스트로 여러 태스크를 한 번에 등록할 수 있다. (아래 일괄 등록 참조)

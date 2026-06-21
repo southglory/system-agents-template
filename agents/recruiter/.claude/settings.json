@@ -13,5 +13,18 @@
     ],
     "deny": [],
     "defaultMode": "bypassPermissions"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PROJECT_DIR}/.claude/hooks/chat_guard.py"
+          }
+        ]
+      }
+    ]
   }
 }

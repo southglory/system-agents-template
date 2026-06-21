@@ -92,22 +92,29 @@ description: {한줄 설명}
 - `역할 1`, `역할 2` → 실제 역할
 - 기술 스택, 작업 환경 정보가 있으면 별도 섹션 추가
 
-#### agents/{이름}/.claude/settings.json
+#### agents/{이름}/.claude/  (전체 복사 — settings · skills · hooks)
 
-`agents/_example/.claude/settings.json`을 그대로 복사한다.
+`agents/_example/.claude/` 디렉토리 **전체**를 그대로 복사한다. 한 번에:
 
-#### agents/{이름}/.claude/skills/
+```sh
+cp -r agents/_example/.claude agents/{이름}/.claude
+```
 
-`agents/_example/.claude/skills/` 디렉토리 전체를 그대로 복사한다. 여기에는 모든 에이전트가 공통으로 사용하는 기본 스킬이 들어 있다:
+이 안에는 모든 에이전트가 공통으로 갖춰야 할 세 가지가 들어 있다:
 
-- `check-chatroom/` — 채팅방 안 읽은 메시지 확인
-- `check-mentions/` — 나를 멘션한 메시지만 확인
-- `end-turn/` — 턴 종료
-- `send-message/` — 채팅방에 메시지 전송
+- **`settings.json`** — 권한 + **채팅 프로토콜 hook**(PreToolUse) 등록
+- **`skills/`** — 공통 슬래시 스킬:
+  - `check-chatroom/` — 채팅방 안 읽은 메시지 확인
+  - `check-mentions/` — 나를 멘션한 메시지만 확인
+  - `end-turn/` — 턴 종료
+  - `send-message/` — 채팅방에 메시지 전송
+- **`hooks/chat_guard.py`** — 채팅 프로토콜 강제 스크립트(`settings.json`이 참조). `ref` 누락·필수 필드·파일명 규칙·`board.yaml` 직접수정을 차단한다.
 
-> **중요.** 이 단계를 빠뜨리면 신규 에이전트는 `/send-message`, `/check-chatroom` 같은 턴제 운영에 필수적인 슬래시 커맨드를 전혀 사용할 수 없다. 반드시 스킬 폴더 전체가 복사되었는지 확인한다. `_example`에 새 공통 스킬이 추가되면 신규 영입 시 자동으로 함께 복사된다.
-
-`cp -r agents/_example/.claude/skills agents/{이름}/.claude/` 한 번이면 충분하다(리크루터 자신도 동일한 구조로 셋업되어 있으므로 참고).
+> **중요.** `.claude/` 전체를 복사하지 않으면:
+> - `skills/`가 없으면 `/send-message`, `/check-chatroom` 등 턴제 운영 슬래시 커맨드를 못 쓴다.
+> - `hooks/chat_guard.py`가 없으면 `settings.json`의 hook이 깨져 채팅 규칙 강제가 동작하지 않는다.
+>
+> `_example`에 공통 스킬/hook이 추가되면 신규 영입 시 자동으로 함께 복사된다(리크루터 자신도 동일 구조).
 
 #### agents/{이름}/knowhow/
 
@@ -124,7 +131,8 @@ description: {한줄 설명}
 
 생성된 파일 목록과 다음 단계를 안내한다. 보고 전에 반드시 아래 sanity check를 수행한다:
 
-- `agents/{이름}/.claude/skills/send-message/SKILL.md` 존재 확인 (없으면 스킬 복사가 누락된 것 — 3단계로 되돌아가 `cp -r`을 다시 수행)
+- `agents/{이름}/.claude/skills/send-message/SKILL.md` 존재 확인 (없으면 `.claude` 복사가 누락된 것 — 3단계로 되돌아가 `cp -r agents/_example/.claude ...`를 다시 수행)
+- `agents/{이름}/.claude/hooks/chat_guard.py` 존재 확인 (없으면 채팅 규칙 hook이 동작하지 않음)
 - `agents/{이름}/role.md`, `CLAUDE.md`, `.claude/settings.json` 존재 확인
 
 확인 완료 후 안내:
