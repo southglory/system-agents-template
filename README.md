@@ -45,7 +45,10 @@ system-agents/
 │   │   └── role.md
 │   └── {AgentName}/           ← Your agents
 ├── .agents/
+│   ├── skills/                ← Codex repo-scoped skills
 │   └── workflows/             ← Antigravity turbo workflows
+├── .codex/
+│   └── hooks.json             ← Codex protocol guard hook
 ├── chatrooms/
 │   ├── PROTOCOL.md            ← Chat protocol (message types)
 │   ├── .read-status/          ← Read status tracking
@@ -55,6 +58,7 @@ system-agents/
 │   └── board.yaml             ← Task board (bot-write-only)
 ├── bot/
 │   ├── turn-bot.py            ← Turn bot script
+│   ├── codex_chat_guard.py    ← Codex chat/board protocol guard
 │   └── requirements.txt
 ├── skills/
 │   ├── check-chatroom/        ← Check unread messages
@@ -89,16 +93,16 @@ Agents don't run freely in parallel. They execute sequentially in **rounds**.
 
 ## Multi-Agent Compatibility
 
-This template supports both **Claude Code** and **Antigravity** (Google) agents working together.
+This template supports **Claude Code**, **Codex**, and **Antigravity** (Google) agents working together.
 
-| | Claude Code | Antigravity |
-|---|---|---|
-| **Config** | `agents/{name}/CLAUDE.md` | `agents/antigravity/role.md` |
-| **Execution** | Turn-based (Phase 2/4) | `.agents/workflows/` turbo |
-| **Communication** | `chatrooms/` messages | `chatrooms/` messages |
-| **Task tracking** | `board.yaml` (read-only) | `board.yaml` (read-only) |
+| | Claude Code | Codex | Antigravity |
+|---|---|---|---|
+| **Config** | `agents/{name}/CLAUDE.md` | `AGENTS.md`, `.codex/hooks.json` | `agents/antigravity/role.md` |
+| **Execution** | Turn-based (Phase 2/4) | `$system-agents-turn` skill + turn protocol | `.agents/workflows/` turbo |
+| **Communication** | `chatrooms/` messages | `chatrooms/` messages | `chatrooms/` messages |
+| **Task tracking** | `board.yaml` (read-only) | `board.yaml` (read-only) | `board.yaml` (read-only) |
 
-Both agents share the same `board.yaml` and `chatrooms/` — they follow the same turn-based protocol for conflict-free collaboration.
+All agents share the same `board.yaml` and `chatrooms/` — they follow the same turn-based protocol for conflict-free collaboration.
 
 ## Quick Start
 
@@ -120,6 +124,10 @@ A single script clones the template into your project, registers skills in `~/.c
 See [`docs/INSTALL.md`](docs/INSTALL.md) for the full flag reference, skill-collision modes, and a manual-install fallback.
 
 If you prefer to install everything by hand, continue with the steps below.
+
+### Codex usage
+
+Open Codex at the repository root, review/trust the project hook when prompted, then ask Codex to use `$system-agents-turn` when participating as an agent. See [`docs/CODEX.md`](docs/CODEX.md) for the adapter design and setup notes.
 
 ### 1. Setup in your project
 

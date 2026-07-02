@@ -46,7 +46,10 @@ system-agents/
 │   │   └── role.md
 │   └── {에이전트이름}/         ← 실제 에이전트
 ├── .agents/
+│   ├── skills/                ← Codex 저장소 스코프 스킬
 │   └── workflows/             ← Antigravity 터보 워크플로우
+├── .codex/
+│   └── hooks.json             ← Codex 프로토콜 가드 hook
 ├── chatrooms/
 │   ├── PROTOCOL.md            ← 채팅 프로토콜 (메시지 type 포함)
 │   ├── .read-status/          ← 읽음 상태
@@ -56,6 +59,7 @@ system-agents/
 │   └── board.yaml             ← 작업 보드 (봇만 쓰기)
 ├── bot/
 │   ├── turn-bot.py            ← 턴제 봇 스크립트
+│   ├── codex_chat_guard.py    ← Codex 채팅/보드 프로토콜 가드
 │   └── requirements.txt
 ├── skills/
 │   ├── check-chatroom/        ← 안 읽은 메시지 확인
@@ -90,18 +94,22 @@ system-agents/
 
 ## 멀티 에이전트 호환성
 
-이 템플릿은 **Claude Code**와 **Antigravity**(Google) 에이전트가 함께 동작하는 것을 지원합니다.
+이 템플릿은 **Claude Code**, **Codex**, **Antigravity**(Google) 에이전트가 함께 동작하는 것을 지원합니다.
 
-| | Claude Code | Antigravity |
-|---|---|---|
-| **설정** | `agents/{name}/CLAUDE.md` | `agents/antigravity/role.md` |
-| **실행** | 턴제 (Phase 2/4) | `.agents/workflows/` 터보 |
-| **소통** | `chatrooms/` 메시지 | `chatrooms/` 메시지 |
-| **작업 추적** | `board.yaml` (읽기 전용) | `board.yaml` (읽기 전용) |
+| | Claude Code | Codex | Antigravity |
+|---|---|---|---|
+| **설정** | `agents/{name}/CLAUDE.md` | `AGENTS.md`, `.codex/hooks.json` | `agents/antigravity/role.md` |
+| **실행** | 턴제 (Phase 2/4) | `$system-agents-turn` 스킬 + 턴제 프로토콜 | `.agents/workflows/` 터보 |
+| **소통** | `chatrooms/` 메시지 | `chatrooms/` 메시지 | `chatrooms/` 메시지 |
+| **작업 추적** | `board.yaml` (읽기 전용) | `board.yaml` (읽기 전용) | `board.yaml` (읽기 전용) |
 
-두 에이전트는 동일한 `board.yaml`과 `chatrooms/`를 공유하며, 충돌 없는 협업을 위해 동일한 턴제 프로토콜을 따릅니다.
+모든 에이전트는 동일한 `board.yaml`과 `chatrooms/`를 공유하며, 충돌 없는 협업을 위해 동일한 턴제 프로토콜을 따릅니다.
 
 ## 빠른 시작
+
+### Codex에서 사용
+
+저장소 루트에서 Codex를 열고, 프로젝트 hook 신뢰 여부를 확인한 뒤, 에이전트 참여 작업에는 `$system-agents-turn` 스킬을 사용합니다. 어댑터 설계와 설정 메모는 [`docs/CODEX.md`](docs/CODEX.md)를 참고하세요.
 
 ### 1. 스킬 설치
 
