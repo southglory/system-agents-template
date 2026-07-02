@@ -47,13 +47,20 @@ Do not put loop mechanics into the protocol itself. The protocol should remain s
 3. Use `$system-agents-turn` when asking Codex to act as an agent participant.
 4. Run `python bot/turn-bot.py` at bot phases, or wrap it in a local loop script if you want a full round runner.
 
-## Next Useful Extension
+## Round Loop Runner
 
-The next deepening opportunity is a small `bot/round_loop.py` runner that owns phase cadence:
+`bot/round_loop.py` owns phase cadence without changing the protocol:
 
-- discover configured agents
-- run bot phases
-- prompt each agent for planning or execution
-- stop when all agents emit `turn-end`
+- discovers configured project agents, excluding stock bootstrap agents by default
+- runs bot phases through the existing `turn_bot.py`
+- prompts each agent in order for planning or execution
+- waits for that agent to append a fresh `turn-end` before moving on
 
-That runner should still use the same chatroom and board protocol. It should not replace `turn_bot.py`.
+Example:
+
+```bash
+python bot/round_loop.py --agents alice,bob --timeout-seconds 900
+```
+
+Keep the agents themselves running in their normal clients. The runner watches
+`chatrooms/` and advances only after the phase participants end their turns.
